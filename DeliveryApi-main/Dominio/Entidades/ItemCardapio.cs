@@ -3,12 +3,6 @@ using DeliveryApi.Dominio.Excecoes;
 
 namespace DeliveryApi.Dominio.Entidades;
 
-/// <summary>
-/// Abstração do que todo item do cardápio tem em comum. É abstrata porque "item genérico" não existe:
-/// o cliente sempre pede um Prato, uma Bebida ou uma Sobremesa. Cada subclasse define a própria
-/// categoria e a forma de descrever seus detalhes, o que dispensa qualquer checagem de tipo (is/switch)
-/// em quem consome os itens.
-/// </summary>
 public abstract class ItemCardapio
 {
     public int Codigo { get; private set; }
@@ -37,11 +31,7 @@ public abstract class ItemCardapio
 
     public abstract CategoriaItem Categoria { get; }
 
-    /// <summary>Texto com o atributo específico da subclasse (tempo, volume ou temperatura).</summary>
     public abstract string ObterDetalhes();
 
-    /// <summary>
-    /// Só pratos passam pela cozinha; os demais itens não acrescentam tempo de preparo.
-    /// </summary>
     public virtual int TempoPreparoMinutos => 0;
 }

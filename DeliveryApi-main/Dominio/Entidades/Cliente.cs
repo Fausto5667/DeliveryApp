@@ -2,10 +2,6 @@ using DeliveryApi.Dominio.Excecoes;
 
 namespace DeliveryApi.Dominio.Entidades;
 
-/// <summary>
-/// Cliente do delivery. O telefone é o identificador único e fica guardado só com dígitos,
-/// para que "(11) 99999-0000" e "11999990000" sejam reconhecidos como o mesmo cliente.
-/// </summary>
 public class Cliente
 {
     public string Telefone { get; }
@@ -25,9 +21,6 @@ public class Cliente
         Endereco = endereco.Trim();
     }
 
-    /// <summary>
-    /// Aceita apenas dígitos e os separadores usuais ( ) - + . e espaço, e devolve somente os dígitos.
-    /// </summary>
     public static string NormalizarTelefone(string? telefone)
     {
         if (string.IsNullOrWhiteSpace(telefone))

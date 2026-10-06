@@ -15,7 +15,6 @@ public class EntregadoresController : ControllerBase
         _servico = servico;
     }
 
-    /// <summary>Menu 5: cadastra um entregador (nasce disponível).</summary>
     [HttpPost]
     [ProducesResponseType(typeof(EntregadorResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

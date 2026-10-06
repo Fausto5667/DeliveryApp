@@ -3,12 +3,8 @@ using DeliveryApi.Dominio.Excecoes;
 
 namespace DeliveryApi.Dominio;
 
-/// <summary>
-/// Constantes e tarifas do domínio, centralizadas para não existirem números mágicos espalhados.
-/// </summary>
 public static class RegrasDeNegocio
 {
-    /// <summary>Pedidos com subtotal acima deste valor têm frete grátis.</summary>
     public const decimal MetaFreteGratis = 80.00m;
 
     public const decimal TaxaKmBicicleta = 1.00m;

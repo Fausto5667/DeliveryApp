@@ -6,12 +6,8 @@
     </linearGradient>
   </defs>
   <rect width="64" height="64" rx="16" fill="url(#grad)" />
-  <!-- Cloche / Delivery Dome -->
   <path d="M32 16c1.1 0 2 .9 2 2v2.1c8.5 1.1 15 8.3 15 16.9H15c0-8.6 6.5-15.8 15-16.9V18c0-1.1.9-2 2-2z" fill="#ffffff" />
-  <!-- Handle -->
   <circle cx="32" cy="15" r="3" fill="#ffffff" />
-  <!-- Base plate -->
   <rect x="13" y="39" width="38" height="4" rx="2" fill="#ffffff" />
-  <!-- Motion / Speed trail -->
   <path d="M22 47h20M26 51h12" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.85" />
 </svg>

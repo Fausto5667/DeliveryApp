@@ -4,11 +4,6 @@ using DeliveryApi.Dominio.Excecoes;
 
 namespace DeliveryApi.Middleware;
 
-/// <summary>
-/// Converte qualquer exceção em uma resposta HTTP controlada no formato { "erro": "mensagem" }:
-/// NaoEncontradoException 404, ConflitoException 409, DominioException 400 e o restante 500
-/// (sem expor detalhes internos). Nenhuma falha derruba a aplicação.
-/// </summary>
 public class TratamentoErrosMiddleware
 {
     private static readonly JsonSerializerOptions OpcoesJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -41,7 +36,6 @@ public class TratamentoErrosMiddleware
         }
     }
 
-    // A ordem importa: NaoEncontrado e Conflito herdam de DominioException e precisam ser testados antes.
     private (int Status, string Mensagem) Classificar(Exception ex)
     {
         switch (ex)

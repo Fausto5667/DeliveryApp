@@ -16,7 +16,6 @@ public class PedidosController : ControllerBase
         _servico = servico;
     }
 
-    /// <summary>Menu 6: cria e monta o pedido, fixando o frete e alocando o entregador.</summary>
     [HttpPost]
     [ProducesResponseType(typeof(PedidoResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -28,7 +27,6 @@ public class PedidosController : ControllerBase
         return CreatedAtAction(nameof(ObterPorId), new { id = pedido.Id }, PedidoResponse.DeDominio(pedido));
     }
 
-    /// <summary>Calcula subtotal, frete e total sem criar o pedido nem ocupar o entregador.</summary>
     [HttpPost("simulacao")]
     [ProducesResponseType(typeof(SimulacaoPedidoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -36,7 +34,6 @@ public class PedidosController : ControllerBase
     public IActionResult Simular([FromBody] CriarPedidoRequest request) =>
         Ok(SimulacaoPedidoResponse.DeDominio(_servico.Simular(request.ParaComando())));
 
-    /// <summary>Menu 7: avança o status um passo (Recebido, EmPreparo, Pronto, EmRota, Entregue).</summary>
     [HttpPatch("{id:int}/avancar")]
     [ProducesResponseType(typeof(PedidoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -44,7 +41,6 @@ public class PedidosController : ControllerBase
     public IActionResult AvancarStatus(int id) =>
         Ok(PedidoResponse.DeDominio(_servico.Avancar(id)));
 
-    /// <summary>Menu 8: lista os pedidos, opcionalmente filtrados por status (?status=EmPreparo).</summary>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<PedidoResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

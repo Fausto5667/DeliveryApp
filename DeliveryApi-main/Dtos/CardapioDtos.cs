@@ -5,9 +5,6 @@ using DeliveryApi.Servicos;
 
 namespace DeliveryApi.Dtos;
 
-/// <summary>
-/// Os três campos opcionais dependem do Tipo; a regra de qual é obrigatório para cada tipo fica no domínio.
-/// </summary>
 public record CriarItemRequest(
     [Required(ErrorMessage = "O tipo do item é obrigatório (Prato, Bebida ou Sobremesa).")]
     CategoriaItem? Tipo,
@@ -37,7 +34,6 @@ public record ItemCardapioResponse(
     int TempoPreparoMinutos
 )
 {
-    /// <summary>Qualquer subtipo de ItemCardapio é convertido da mesma forma, sem if/switch de tipo.</summary>
     public static ItemCardapioResponse DeDominio(ItemCardapio item) => new(
         item.Codigo,
         item.Nome,

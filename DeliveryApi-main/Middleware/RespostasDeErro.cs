@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace DeliveryApi.Middleware;
 
-/// <summary>Monta mensagens de erro em português a partir de falhas de validação e de leitura do JSON.</summary>
 public static class RespostasDeErro
 {
     public static string MontarMensagem(ModelStateDictionary estado)
@@ -31,7 +30,6 @@ public static class RespostasDeErro
         _ => "Não foi possível processar a requisição."
     };
 
-    // Mensagens geradas pelo próprio framework (em inglês) para JSON malformado ou valores de tipo errado.
     private static bool EhMensagemTecnica(ModelError erro) =>
         erro.Exception is not null
         || string.IsNullOrWhiteSpace(erro.ErrorMessage)

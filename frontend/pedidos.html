@@ -18,28 +18,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=6">
+    <link rel="stylesheet" href="css/style.css?v=9">
 </head>
 
 <body>
 
     <header class="topo">
-        <div class="logo-wrap">
-            <a href="index.html" class="logo">
-                <img src="imagens/logo-menu.png" alt="Delivery">
-                <span class="logo-texto">Delivery Gourmet</span>
-            </a>
-
-            <div class="logo-popover">
-                <div class="logo-popover-img-wrap">
-                    <img src="imagens/logo-menu.png" alt="Logo Delivery Gourmet Ampliada" class="logo-popover-img">
-                </div>
-                <div class="logo-popover-conteudo">
-                    <h3>Delivery Gourmet</h3>
-                    <p>Sistema Acadêmico de Gestão Gastronômica &amp; Entregas</p>
-                </div>
-            </div>
-        </div>
+        <a href="index.html" class="logo">
+            <img src="imagens/logo-menu.png" alt="Delivery">
+            <span class="logo-texto">Delivery Gourmet</span>
+        </a>
 
         <nav>
             <a href="index.html">Início</a>
@@ -69,12 +57,12 @@
 
     <main class="container">
 
-        <section class="pagina-cabecalho animar-fade-in">
+        <section class="pagina-cabecalho">
             <h1>Gestão de Pedidos</h1>
             <p>Gerencie o ciclo de vida dos pedidos em tempo real e acompanhe seu status.</p>
         </section>
 
-        <section class="barra-acoes animar-fade-in">
+        <section class="barra-acoes">
             <button type="button" id="btnNovoPedido" class="btn-primario">
                 <svg class="btn-icone" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
                 Novo pedido
@@ -93,7 +81,7 @@
             </div>
         </section>
 
-        <section id="formularioPedido" class="formulario oculto animar-fade-in">
+        <section id="formularioPedido" class="formulario oculto">
             <h2>Criar novo pedido</h2>
 
             <form id="formPedido">
@@ -185,7 +173,7 @@
             </form>
         </section>
 
-        <section class="tabela-container animar-fade-in">
+        <section class="tabela-container">
             <h2>Pedidos cadastrados</h2>
 
             <table>

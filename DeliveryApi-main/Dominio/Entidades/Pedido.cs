@@ -4,11 +4,6 @@ using DeliveryApi.Dominio.Frete;
 
 namespace DeliveryApi.Dominio.Entidades;
 
-/// <summary>
-/// Pedido: agrega Cliente e Entregador (existem antes e depois do pedido e são compartilhados com outros
-/// pedidos) e é composto por suas linhas ItemPedido (nascem e morrem com ele).
-/// Todo o ciclo de vida passa por métodos de domínio: AdicionarItem, Confirmar e Avancar.
-/// </summary>
 public class Pedido
 {
     private readonly List<ItemPedido> _itens = new();
@@ -22,7 +17,6 @@ public class Pedido
     public DateTime CriadoEm { get; private set; }
     public DateTime? EntregueEm { get; private set; }
 
-    /// <summary>Frete definido na confirmação; fica fixo mesmo que as tarifas mudem depois.</summary>
     public decimal Frete { get; private set; }
 
     public bool Confirmado { get; private set; }
@@ -33,10 +27,6 @@ public class Pedido
 
     public decimal Total => Subtotal + Frete;
 
-    /// <summary>
-    /// O preparo é paralelo na cozinha, então o tempo do pedido é o do item mais demorado (não a soma).
-    /// Bebidas e sobremesas retornam 0, por isso não há necessidade de filtrar por tipo.
-    /// </summary>
     public int TempoPreparoMinutos => _itens.Count > 0 ? _itens.Max(i => i.Item.TempoPreparoMinutos) : 0;
 
     public StatusPedido? ProximoStatus => Status.ObterProximo();
@@ -61,7 +51,6 @@ public class Pedido
         CriadoEm = DateTime.Now;
     }
 
-    /// <summary>Adiciona um item; se ele já está no pedido, apenas soma a quantidade.</summary>
     public void AdicionarItem(ItemCardapio item, int quantidade)
     {
         if (item is null)
@@ -77,14 +66,9 @@ public class Pedido
             existente.Acrescentar(quantidade);
     }
 
-    /// <summary>Frete que este pedido teria com a calculadora informada, sem alterar o pedido.</summary>
     public decimal CalcularFrete(ICalculadoraFrete calculadora) =>
         calculadora.Calcular(Entregador.Veiculo, DistanciaKm, Subtotal);
 
-    /// <summary>
-    /// Fecha a montagem do pedido: exige ao menos um item, fixa o frete e aloca o entregador.
-    /// O frete é calculado antes de ocupar o entregador para que uma falha não deixe o entregador preso.
-    /// </summary>
     public void Confirmar(ICalculadoraFrete calculadora)
     {
         if (Confirmado)
@@ -100,10 +84,6 @@ public class Pedido
         Confirmado = true;
     }
 
-    /// <summary>
-    /// Avança um passo na sequência Recebido, EmPreparo, Pronto, EmRota, Entregue, sem permitir pular etapas.
-    /// Ao entregar, registra o horário e libera o entregador.
-    /// </summary>
     public void Avancar()
     {
         lock (_trava)

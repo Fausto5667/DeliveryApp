@@ -18,28 +18,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=6">
+    <link rel="stylesheet" href="css/style.css?v=9">
 </head>
 
 <body>
 
     <header class="topo">
-        <div class="logo-wrap">
-            <a href="index.html" class="logo">
-                <img src="imagens/logo-menu.png" alt="Delivery">
-                <span class="logo-texto">Delivery Gourmet</span>
-            </a>
-
-            <div class="logo-popover">
-                <div class="logo-popover-img-wrap">
-                    <img src="imagens/logo-menu.png" alt="Logo Delivery Gourmet Ampliada" class="logo-popover-img">
-                </div>
-                <div class="logo-popover-conteudo">
-                    <h3>Delivery Gourmet</h3>
-                    <p>Sistema Acadêmico de Gestão Gastronômica &amp; Entregas</p>
-                </div>
-            </div>
-        </div>
+        <a href="index.html" class="logo">
+            <img src="imagens/logo-menu.png" alt="Delivery">
+            <span class="logo-texto">Delivery Gourmet</span>
+        </a>
 
         <nav>
             <a href="index.html">Início</a>
@@ -69,19 +57,19 @@
 
     <main class="container">
 
-        <section class="pagina-cabecalho animar-fade-in">
+        <section class="pagina-cabecalho">
             <h1>Gestão de Entregadores</h1>
             <p>Gerencie a frota de entregadores por modalidade e acompanhe o estado de disponibilidade em tempo real.</p>
         </section>
 
-        <section class="barra-acoes animar-fade-in">
+        <section class="barra-acoes">
             <button id="btnNovoEntregador" class="btn-primario">
                 <svg class="btn-icone" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
                 Cadastrar entregador
             </button>
         </section>
 
-        <section id="formularioEntregador" class="formulario oculto animar-fade-in">
+        <section id="formularioEntregador" class="formulario oculto">
             <h2>Cadastrar entregador na frota</h2>
 
             <form id="formEntregador">
@@ -126,7 +114,7 @@
             </form>
         </section>
 
-        <section class="tabela-container animar-fade-in">
+        <section class="tabela-container">
             <h2>Entregadores cadastrados</h2>
 
             <table>

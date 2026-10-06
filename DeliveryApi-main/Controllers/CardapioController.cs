@@ -15,7 +15,6 @@ public class CardapioController : ControllerBase
         _servico = servico;
     }
 
-    /// <summary>Menu 1: adiciona um prato, bebida ou sobremesa ao cardápio.</summary>
     [HttpPost]
     [ProducesResponseType(typeof(ItemCardapioResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -25,13 +24,11 @@ public class CardapioController : ControllerBase
         return CreatedAtAction(nameof(ObterPorCodigo), new { codigo = item.Codigo }, ItemCardapioResponse.DeDominio(item));
     }
 
-    /// <summary>Menu 2: lista o cardápio completo.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<ItemCardapioResponse>), StatusCodes.Status200OK)]
     public IActionResult ListarCardapio() =>
         Ok(_servico.Listar().Select(ItemCardapioResponse.DeDominio).ToList());
 
-    /// <summary>Menu 3: busca itens por trecho do nome, sem diferenciar maiúsculas de minúsculas.</summary>
     [HttpGet("buscar")]
     [ProducesResponseType(typeof(IReadOnlyList<ItemCardapioResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

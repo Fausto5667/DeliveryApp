@@ -15,7 +15,6 @@ public class RelatoriosController : ControllerBase
         _servico = servico;
     }
 
-    /// <summary>Menu 9: relatório gerencial (itens mais vendidos, tempo médio de entrega e faturamento).</summary>
     [HttpGet]
     [HttpGet("gerencial")]
     [ProducesResponseType(typeof(RelatorioGerencialResponse), StatusCodes.Status200OK)]

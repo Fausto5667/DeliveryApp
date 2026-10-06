@@ -1,4 +1,3 @@
-// Configuração da URL base da API
 const API_BASE_URL = window.location.origin.includes(":5173")
     ? "/api"
     : (window.location.protocol.startsWith("http")
@@ -77,7 +76,6 @@ function mostrarMensagem(mensagem, tipo = "info") {
 
     document.body.appendChild(elemento);
 
-    // Auto dismiss após 4.5 segundos
     timeoutMensagem = setTimeout(() => {
         if (elemento.parentElement) {
             elemento.classList.add("mensagem-saindo");
@@ -125,57 +123,11 @@ function obterLista(dados) {
     return [];
 }
 
-// ============================================================================
-// ACETERNITY UI - INTERAÇÕES & ANIMAÇÕES FLUIDAS (Spotlight, Stagger & Micro-interactions)
-// Referência: https://ui.aceternity.com/components
-// ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
     inicializarTema();
-    inicializarAceternityUI();
     inicializarCustomSelects();
 });
 
-function inicializarAceternityUI() {
-    // 1. Aceternity Card Spotlight Tracker com cálculo estável sem jitter
-    const elementosSpotlight = document.querySelectorAll(".card, .relatorio-card");
-    elementosSpotlight.forEach(card => {
-        let ticking = false;
-        card.addEventListener("mousemove", (evento) => {
-            if (!ticking) {
-                window.requestAnimationFrame(() => {
-                    const rect = card.getBoundingClientRect();
-                    const x = evento.clientX - rect.left;
-                    const y = evento.clientY - rect.top;
-                    card.style.setProperty("--mouse-x", `${x}px`);
-                    card.style.setProperty("--mouse-y", `${y}px`);
-                    ticking = false;
-                });
-                ticking = true;
-            }
-        });
-
-        card.addEventListener("mouseleave", () => {
-            card.style.setProperty("--mouse-x", "-999px");
-            card.style.setProperty("--mouse-y", "-999px");
-        });
-    });
-
-    // 2. Micro-interação de foco suave nos campos de formulário
-    const camposForm = document.querySelectorAll("input, select");
-    camposForm.forEach(campo => {
-        campo.addEventListener("focus", () => {
-            campo.closest(".campo")?.classList.add("campo-ativo");
-        });
-        campo.addEventListener("blur", () => {
-            campo.closest(".campo")?.classList.remove("campo-ativo");
-        });
-    });
-}
-
-// ============================================================================
-// COMPONENTE PRIMENG DROPDOWN VISUAL
-// Transforma selects nativos do SO em componentes elegantes de alta fidelidade.
-// ============================================================================
 function inicializarCustomSelects() {
     const selects = document.querySelectorAll("select");
     selects.forEach(select => {
@@ -183,7 +135,6 @@ function inicializarCustomSelects() {
         criarCustomDropdown(select);
     });
 
-    // Fechar ao clicar fora
     document.addEventListener("click", (e) => {
         if (!e.target.closest(".custom-select-wrapper")) {
             fecharTodosDropdowns();
@@ -205,7 +156,6 @@ function criarCustomDropdown(select) {
     const wrapper = document.createElement("div");
     wrapper.className = "custom-select-wrapper select-oculto";
 
-    // Inserir wrapper no lugar do select e mover o select para dentro do wrapper
     select.parentNode.insertBefore(wrapper, select);
     wrapper.appendChild(select);
 
@@ -300,7 +250,6 @@ function criarCustomDropdown(select) {
         });
     }
 
-    // Observar mutações em childList para preenchimentos dinâmicos
     const observer = new MutationObserver(() => {
         atualizarOpcoes();
     });
@@ -309,9 +258,6 @@ function criarCustomDropdown(select) {
     atualizarOpcoes();
 }
 
-// ============================================================================
-// GERENCIADOR GLOBAL DE TEMA (CLARO / ESCURO)
-// ============================================================================
 function alternarTema() {
     const temaAtual = document.documentElement.getAttribute("data-tema") || "claro";
     const novoTema = temaAtual === "escuro" ? "claro" : "escuro";

@@ -3,11 +3,6 @@ using DeliveryApi.Dominio.Excecoes;
 
 namespace DeliveryApi.Repositorios;
 
-/// <summary>
-/// Esqueleto do armazenamento em memória (Template Method): a lógica de guardar com segurança entre threads
-/// e recusar identificadores duplicados fica aqui, e cada repositório concreto só diz qual é o
-/// identificador da entidade e em que ordem listá-las.
-/// </summary>
 public abstract class RepositorioMemoria<TEntidade, TId> : IRepositorio<TEntidade, TId>
     where TEntidade : class
     where TId : notnull
@@ -22,7 +17,6 @@ public abstract class RepositorioMemoria<TEntidade, TId> : IRepositorio<TEntidad
     {
         var id = ObterId(entidade);
 
-        // TryAdd é atômico: evita que dois cadastros simultâneos com o mesmo id passem pela verificação.
         if (!_dados.TryAdd(id, entidade))
             throw new ConflitoException($"Já existe um registro com o identificador '{id}'.");
     }

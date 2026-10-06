@@ -11,9 +11,6 @@ public record ItemMaisVendido(
     int QuantidadeVendida,
     decimal TotalVendido);
 
-/// <summary>
-/// TempoMedioEntregaMinutos é null enquanto não houver pedido entregue.
-/// </summary>
 public record RelatorioGerencial(
     IReadOnlyList<ItemMaisVendido> ItensMaisVendidos,
     double? TempoMedioEntregaMinutos,
@@ -32,10 +29,6 @@ public class RelatorioServico
         _repositorioPedido = repositorioPedido;
     }
 
-    /// <summary>
-    /// Critérios: o ranking considera todos os pedidos feitos (o que foi vendido); tempo médio e faturamento
-    /// consideram apenas pedidos entregues (a receita só se realiza na entrega). O faturamento inclui o frete.
-    /// </summary>
     public RelatorioGerencial Gerar()
     {
         var pedidos = _repositorioPedido.ListarTodos();

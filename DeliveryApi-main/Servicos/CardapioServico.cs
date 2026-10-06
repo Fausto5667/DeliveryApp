@@ -32,7 +32,6 @@ public class CardapioServico
 
     public IReadOnlyList<ItemCardapio> Listar() => _repositorio.ListarTodos();
 
-    /// <summary>Busca por trecho do nome, sem diferenciar maiúsculas de minúsculas.</summary>
     public IReadOnlyList<ItemCardapio> BuscarPorNome(string? termo)
     {
         if (string.IsNullOrWhiteSpace(termo))

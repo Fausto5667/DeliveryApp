@@ -2,11 +2,6 @@ using DeliveryApi.Dominio.Excecoes;
 
 namespace DeliveryApi.Dominio.Entidades;
 
-/// <summary>
-/// Linha de um pedido: um item do cardápio e sua quantidade. É parte do Pedido (composição): só é criada
-/// por Pedido.AdicionarItem e não existe fora dele. Já o ItemCardapio referenciado continua existindo
-/// independentemente do pedido (associação).
-/// </summary>
 public class ItemPedido
 {
     public ItemCardapio Item { get; private set; }

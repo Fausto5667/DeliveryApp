@@ -13,12 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        // Enums trafegam como texto; números são recusados para não criar valores fora da enumeração.
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(allowIntegerValues: false));
     })
     .ConfigureApiBehaviorOptions(options =>
     {
-        // Erros de validação e de JSON usam o mesmo formato { "erro": "..." } dos demais erros da API.
         options.InvalidModelStateResponseFactory = contexto =>
             new BadRequestObjectResult(new { erro = RespostasDeErro.MontarMensagem(contexto.ModelState) });
     });
@@ -34,13 +32,11 @@ builder.Services.AddCors(options =>
         .AllowAnyMethod());
 });
 
-// Repositórios e serviços são singletons: os dados vivem em memória e precisam sobreviver entre requisições.
 builder.Services.AddSingleton<IRepositorio<ItemCardapio, int>, RepositorioItemCardapioMemoria>();
 builder.Services.AddSingleton<IRepositorio<Cliente, string>, RepositorioClienteMemoria>();
 builder.Services.AddSingleton<IRepositorio<Entregador, int>, RepositorioEntregadorMemoria>();
 builder.Services.AddSingleton<IRepositorio<Pedido, int>, RepositorioPedidoMemoria>();
 
-// Frete = tarifa por veículo, com a regra de gratuidade acima da meta envolvendo a tarifa.
 builder.Services.AddSingleton<ICalculadoraFrete>(
     new CalculadoraFreteGratisAcimaDaMeta(new CalculadoraFretePorVeiculo()));
 
@@ -54,7 +50,6 @@ var app = builder.Build();
 
 app.UseMiddleware<TratamentoErrosMiddleware>();
 
-// Respostas sem corpo (rota inexistente, método ou tipo de conteúdo não suportado) também saem em JSON.
 app.UseStatusCodePages(contexto =>
     TratamentoErrosMiddleware.EscreverErroAsync(
         contexto.HttpContext,
@@ -69,7 +64,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("Frontend");
 
-// Serve o front-end na mesma origem da API (http://localhost:5173), o que dispensa configurar CORS e servidor à parte.
 var pastaFrontend = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, "..", "frontend"));
 if (Directory.Exists(pastaFrontend))
 {

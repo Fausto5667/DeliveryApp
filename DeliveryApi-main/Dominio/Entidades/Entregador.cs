@@ -3,11 +3,6 @@ using DeliveryApi.Dominio.Excecoes;
 
 namespace DeliveryApi.Dominio.Entidades;
 
-/// <summary>
-/// Entregador da frota. O veículo é um atributo (enum) e não uma subclasse (EntregadorMoto, EntregadorCarro):
-/// o veículo é a modalidade do serviço e não muda o que o entregador "é" nem o que ele faz.
-/// A disponibilidade só muda por Ocupar() e Liberar(), nunca por atribuição direta.
-/// </summary>
 public class Entregador
 {
     private readonly object _trava = new();
@@ -34,10 +29,6 @@ public class Entregador
         Disponivel = true;
     }
 
-    /// <summary>
-    /// Aloca o entregador a uma entrega. A verificação e a troca de estado acontecem sob lock
-    /// para que duas requisições simultâneas não aloquem o mesmo entregador.
-    /// </summary>
     public void Ocupar()
     {
         lock (_trava)

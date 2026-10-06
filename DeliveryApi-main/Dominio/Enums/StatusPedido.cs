@@ -1,9 +1,5 @@
 namespace DeliveryApi.Dominio.Enums;
 
-/// <summary>
-/// Ciclo de vida do pedido. A ordem dos valores é a ordem obrigatória das transições:
-/// Recebido, EmPreparo, Pronto, EmRota e Entregue.
-/// </summary>
 public enum StatusPedido
 {
     Recebido = 1,
@@ -15,7 +11,6 @@ public enum StatusPedido
 
 public static class StatusPedidoExtensoes
 {
-    /// <summary>Próximo estado da sequência, ou null quando o pedido já está no estado final.</summary>
     public static StatusPedido? ObterProximo(this StatusPedido status) => status switch
     {
         StatusPedido.Recebido => StatusPedido.EmPreparo,

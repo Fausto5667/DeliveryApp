@@ -3,7 +3,6 @@ using DeliveryApi.Dominio.Excecoes;
 
 namespace DeliveryApi.Dominio.Entidades;
 
-/// <summary>Prato: item que passa pela cozinha e por isso tem tempo de preparo.</summary>
 public class Prato : ItemCardapio
 {
     public int TempoPreparo { get; private set; }

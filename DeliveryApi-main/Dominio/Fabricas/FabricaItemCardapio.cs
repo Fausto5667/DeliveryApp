@@ -4,10 +4,6 @@ using DeliveryApi.Dominio.Excecoes;
 
 namespace DeliveryApi.Dominio.Fabricas;
 
-/// <summary>
-/// Único ponto do sistema que precisa conhecer as subclasses concretas de ItemCardapio.
-/// Depois da criação, todo o resto trabalha com a abstração.
-/// </summary>
 public static class FabricaItemCardapio
 {
     public static ItemCardapio Criar(

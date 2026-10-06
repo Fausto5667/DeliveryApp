@@ -6,7 +6,6 @@ using DeliveryApi.Repositorios;
 
 namespace DeliveryApi.Servicos;
 
-/// <summary>Orquestra a criação, a simulação e o avanço de status dos pedidos.</summary>
 public class PedidoServico
 {
     private const int IdDaSimulacao = 1;
@@ -45,10 +44,6 @@ public class PedidoServico
         }
     }
 
-    /// <summary>
-    /// Calcula subtotal, frete e total sem gravar o pedido e sem ocupar o entregador.
-    /// Usa o mesmo caminho de montagem do pedido real, então as regras nunca divergem.
-    /// </summary>
     public SimulacaoPedido Simular(NovoPedido dados)
     {
         var pedido = Montar(IdDaSimulacao, dados);

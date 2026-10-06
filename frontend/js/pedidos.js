@@ -1,4 +1,4 @@
-﻿let pedidos = [];
+let pedidos = [];
 let clientesPedido = [];
 let entregadoresPedido = [];
 let itensCardapioPedido = [];
@@ -43,7 +43,6 @@ document.addEventListener("DOMContentLoaded", () => {
         filtroStatus.addEventListener("change", carregarPedidos);
     }
 
-    // Recalcular simulação sempre que mudar entregador ou distância
     if (entregadorSelect) {
         entregadorSelect.addEventListener("change", consultarSimulacaoSePossivel);
     }
@@ -281,8 +280,7 @@ async function consultarSimulacaoSePossivel() {
         }
         if (totalEl) totalEl.textContent = formatarMoeda(total);
 
-    } catch (e) {
-        // Ignora silenciosamente durante digitação
+    } catch {
     }
 }
 

@@ -2,11 +2,6 @@ using DeliveryApi.Dominio.Enums;
 
 namespace DeliveryApi.Dominio.Frete;
 
-/// <summary>
-/// Regra de frete grátis: se o valor do pedido supera a meta o frete é zero; caso contrário delega
-/// ao cálculo interno. Agrega outra ICalculadoraFrete recebida de fora (agregação): a calculadora interna
-/// existe e funciona sozinha, e esta classe apenas decora o seu resultado.
-/// </summary>
 public class CalculadoraFreteGratisAcimaDaMeta : ICalculadoraFrete
 {
     private readonly ICalculadoraFrete _calculadoraInterna;

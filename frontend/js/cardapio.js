@@ -67,7 +67,6 @@ function atualizarCamposEspecificos() {
     if (campoBebida) campoBebida.classList.toggle("oculto", tipo !== "bebida");
     if (campoSobremesa) campoSobremesa.classList.toggle("oculto", tipo !== "sobremesa");
 
-    // Requisitar os campos específicos apenas quando visíveis
     const tempoInput = document.getElementById("tempoPreparo");
     const volumeInput = document.getElementById("volumeBebida");
     if (tempoInput) tempoInput.required = (tipo === "prato");
@@ -99,7 +98,6 @@ async function buscarItens() {
         itensCardapio = obterLista(dados);
         renderizarItens(itensCardapio);
     } catch (erro) {
-        // Fallback local se a requisição falhar
         const resultado = itensCardapio.filter(item =>
             obterNomeItem(item).toLowerCase().includes(busca.toLowerCase())
         );

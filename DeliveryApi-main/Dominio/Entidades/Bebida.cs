@@ -3,7 +3,6 @@ using DeliveryApi.Dominio.Excecoes;
 
 namespace DeliveryApi.Dominio.Entidades;
 
-/// <summary>Bebida: item com volume declarado em mililitros. Não passa pela cozinha.</summary>
 public class Bebida : ItemCardapio
 {
     public int VolumeMl { get; private set; }

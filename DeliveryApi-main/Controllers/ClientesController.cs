@@ -15,7 +15,6 @@ public class ClientesController : ControllerBase
         _servico = servico;
     }
 
-    /// <summary>Menu 4: cadastra um cliente. O telefone é o identificador único.</summary>
     [HttpPost]
     [ProducesResponseType(typeof(ClienteResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

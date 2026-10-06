@@ -29,7 +29,6 @@ public record CriarPedidoRequest(
     List<ItemPedidoRequest> Itens
 ) : IValidatableObject
 {
-    /// <summary>A validação por atributos não percorre os elementos da lista, então um item nulo passaria.</summary>
     public IEnumerable<ValidationResult> Validate(ValidationContext contexto)
     {
         if (Itens is not null && Itens.Any(i => i is null))
