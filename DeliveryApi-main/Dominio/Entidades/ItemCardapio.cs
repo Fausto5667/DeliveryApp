@@ -1,27 +1,20 @@
+using DeliveryApi.Dominio.Enums;
 using DeliveryApi.Dominio.Excecoes;
 
 namespace DeliveryApi.Dominio.Entidades;
 
 /// <summary>
-/// CONCEITO POO - ABSTRAÇÃO E CLASSE ABSTRATA:
-/// Modela a essência comum a todo item de cardápio (código, nome e preço base).
-/// É marcada como 'abstract' porque não existe no mundo real um "item de cardápio genérico";
-/// o cliente sempre pede um Prato, uma Bebida ou uma Sobremesa.
+/// Abstração do que todo item do cardápio tem em comum. É abstrata porque "item genérico" não existe:
+/// o cliente sempre pede um Prato, uma Bebida ou uma Sobremesa. Cada subclasse define a própria
+/// categoria e a forma de descrever seus detalhes, o que dispensa qualquer checagem de tipo (is/switch)
+/// em quem consome os itens.
 /// </summary>
 public abstract class ItemCardapio
 {
-    /// <summary>
-    /// CONCEITO POO - ENCAPSULAMENTO:
-    /// As propriedades possuem 'private set', garantindo que o estado interno do objeto
-    /// só seja definido e alterado através de métodos controlados e do construtor validado.
-    /// </summary>
     public int Codigo { get; private set; }
     public string Nome { get; private set; }
     public decimal PrecoBase { get; private set; }
 
-    /// <summary>
-    /// Construtor protegido: valida as invariantes obrigatórias de qualquer item antes de criá-lo.
-    /// </summary>
     protected ItemCardapio(int codigo, string nome, decimal precoBase)
     {
         if (codigo <= 0)
@@ -30,31 +23,25 @@ public abstract class ItemCardapio
         if (string.IsNullOrWhiteSpace(nome))
             throw new DominioException("O nome do item é obrigatório.");
 
-        if (precoBase <= 0)
+        var preco = Math.Round(precoBase, 2, MidpointRounding.AwayFromZero);
+        if (preco <= 0)
             throw new DominioException("O preço base deve ser maior que zero.");
+
+        if (preco > RegrasDeNegocio.PrecoMaximoItem)
+            throw new DominioException($"O preço base não pode ultrapassar {RegrasDeNegocio.PrecoMaximoItem:N2}.");
 
         Codigo = codigo;
         Nome = nome.Trim();
-        PrecoBase = precoBase;
+        PrecoBase = preco;
     }
 
-    /// <summary>
-    /// CONCEITO POO - POLIMORFISMO:
-    /// Cada subclasse deve declarar a sua própria categoria de forma polimórfica,
-    /// eliminando checagens manuais de tipo na aplicação.
-    /// </summary>
-    public abstract string Categoria { get; }
+    public abstract CategoriaItem Categoria { get; }
 
-    /// <summary>
-    /// CONCEITO POO - POLIMORFISMO:
-    /// Método abstrato que força cada especialização a formatar seus próprios detalhes específicos.
-    /// </summary>
+    /// <summary>Texto com o atributo específico da subclasse (tempo, volume ou temperatura).</summary>
     public abstract string ObterDetalhes();
 
     /// <summary>
-    /// CONCEITO POO - POLIMORFISMO:
-    /// Propriedade virtual: por padrão, itens de cardápio não possuem tempo de preparo de cozinha (0 min).
-    /// Apenas pratos culinários sobrescrevem esta propriedade.
+    /// Só pratos passam pela cozinha; os demais itens não acrescentam tempo de preparo.
     /// </summary>
     public virtual int TempoPreparoMinutos => 0;
 }

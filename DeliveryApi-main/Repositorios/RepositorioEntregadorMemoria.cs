@@ -1,29 +1,11 @@
-using System.Collections.Concurrent;
 using DeliveryApi.Dominio.Entidades;
 
 namespace DeliveryApi.Repositorios;
 
-/// <summary>
-/// CONCEITO POO - POLIMORFISMO DE INTERFACE:
-/// Implementação em memória do repositório de entregadores.
-/// </summary>
-public class RepositorioEntregadorMemoria : IRepositorio<Entregador>
+public class RepositorioEntregadorMemoria : RepositorioMemoria<Entregador, int>
 {
-    private readonly ConcurrentDictionary<int, Entregador> _entregadores = new();
+    protected override int ObterId(Entregador entregador) => entregador.Id;
 
-    public void Adicionar(Entregador entidade)
-    {
-        _entregadores[entidade.Id] = entidade;
-    }
-
-    public Entregador? ObterPorId(int id)
-    {
-        _entregadores.TryGetValue(id, out var entregador);
-        return entregador;
-    }
-
-    public IReadOnlyList<Entregador> ListarTodos()
-    {
-        return _entregadores.Values.OrderBy(e => e.Id).ToList().AsReadOnly();
-    }
+    protected override IEnumerable<Entregador> Ordenar(IEnumerable<Entregador> entregadores) =>
+        entregadores.OrderBy(e => e.Id);
 }

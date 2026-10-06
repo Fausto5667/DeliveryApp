@@ -1,169 +1,160 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Delivery - Entregadores</title>
-
-    <link rel="icon" type="image/png" href="imagens/logo.png">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/png" href="imagens/favicon.png">
+    <script>
+        (function() {
+            try {
+                var salvo = localStorage.getItem('delivery_tema');
+                var prefereEscuro = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                var tema = salvo || (prefereEscuro ? 'escuro' : 'claro');
+                document.documentElement.setAttribute('data-tema', tema);
+            } catch (e) {}
+        })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=6">
 </head>
 
 <body>
 
     <header class="topo">
+        <div class="logo-wrap">
+            <a href="index.html" class="logo">
+                <img src="imagens/logo-menu.png" alt="Delivery">
+                <span class="logo-texto">Delivery Gourmet</span>
+            </a>
 
-        <a href="index.html" class="logo">
-            <img src="imagens/logo.png" alt="Delivery">
-        </a>
+            <div class="logo-popover">
+                <div class="logo-popover-img-wrap">
+                    <img src="imagens/logo-menu.png" alt="Logo Delivery Gourmet Ampliada" class="logo-popover-img">
+                </div>
+                <div class="logo-popover-conteudo">
+                    <h3>Delivery Gourmet</h3>
+                    <p>Sistema Acadêmico de Gestão Gastronômica &amp; Entregas</p>
+                </div>
+            </div>
+        </div>
 
         <nav>
             <a href="index.html">Início</a>
             <a href="cardapio.html">Cardápio</a>
             <a href="clientes.html">Clientes</a>
-            <a href="entregadores.html">Entregadores</a>
+            <a href="entregadores.html" class="ativo">Entregadores</a>
             <a href="pedidos.html">Pedidos</a>
             <a href="relatorios.html">Relatórios</a>
+            <button type="button" id="btnTemaToggle" class="btn-tema" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">
+                <svg class="icone-sol" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <svg class="icone-lua" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
         </nav>
-
     </header>
 
     <main class="container">
 
-        <section class="pagina-cabecalho">
-
-            <h1>Entregadores</h1>
-
-            <p>
-                Gerencie os entregadores da frota e acompanhe suas disponibilidades.
-            </p>
-
+        <section class="pagina-cabecalho animar-fade-in">
+            <h1>Gestão de Entregadores</h1>
+            <p>Gerencie a frota de entregadores por modalidade e acompanhe o estado de disponibilidade em tempo real.</p>
         </section>
 
-        <section class="barra-acoes">
-
-            <button id="btnNovoEntregador">
+        <section class="barra-acoes animar-fade-in">
+            <button id="btnNovoEntregador" class="btn-primario">
+                <svg class="btn-icone" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
                 Cadastrar entregador
             </button>
-
         </section>
 
-        <section
-            id="formularioEntregador"
-            class="formulario oculto"
-        >
-
-            <h2>Cadastrar entregador</h2>
+        <section id="formularioEntregador" class="formulario oculto animar-fade-in">
+            <h2>Cadastrar entregador na frota</h2>
 
             <form id="formEntregador">
 
                 <div class="campo">
-
-                    <label for="nomeEntregador">
-                        Nome
-                    </label>
-
+                    <label for="nomeEntregador">Nome do Entregador</label>
                     <input
                         type="text"
                         id="nomeEntregador"
-                        placeholder="Digite o nome do entregador"
+                        placeholder="Ex.: Carlos Mendes, Diego Silva..."
+                        minlength="2"
+                        maxlength="100"
                         required
                     >
-
                 </div>
 
                 <div class="campo">
-
-                    <label for="veiculoEntregador">
-                        Veículo
-                    </label>
-
-                    <select
-                        id="veiculoEntregador"
-                        required
-                    >
-
-                        <option value="">
-                            Selecione o veículo
-                        </option>
-
-                        <option value="Moto">
-                            Moto
-                        </option>
-
-                        <option value="Bicicleta">
-                            Bicicleta
-                        </option>
-
-                        <option value="Carro">
-                            Carro
-                        </option>
-
+                    <label for="veiculoEntregador">Modalidade do Veículo</label>
+                    <select id="veiculoEntregador" required>
+                        <option value="">Selecione a modalidade de transporte...</option>
+                        <option value="Moto">Moto (Taxa R$ 1,50 / km)</option>
+                        <option value="Bicicleta">Bicicleta (Taxa R$ 1,00 / km)</option>
+                        <option value="Carro">Carro (Taxa R$ 2,00 / km)</option>
                     </select>
-
                 </div>
 
                 <div class="botoes-formulario">
-
-                    <button type="submit">
-                        Cadastrar
+                    <button type="submit" class="btn-primario">
+                        <svg class="btn-icone" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                        Salvar entregador
                     </button>
 
                     <button
                         type="button"
                         id="btnCancelarEntregador"
+                        class="btn-secundario"
                     >
                         Cancelar
                     </button>
-
                 </div>
 
             </form>
-
         </section>
 
-        <section class="tabela-container">
-
+        <section class="tabela-container animar-fade-in">
             <h2>Entregadores cadastrados</h2>
 
             <table>
-
                 <thead>
-
                     <tr>
                         <th>ID</th>
                         <th>Nome</th>
                         <th>Veículo</th>
-                        <th>Disponibilidade</th>
+                        <th>Status Operacional</th>
                     </tr>
-
                 </thead>
 
                 <tbody id="tabelaEntregadores">
-
                     <tr>
-                        <td colspan="4">
-                            Nenhum entregador carregado.
-                        </td>
+                        <td colspan="4">Nenhum entregador cadastrado.</td>
                     </tr>
-
                 </tbody>
-
             </table>
-
         </section>
 
     </main>
 
     <footer>
-        <p>Projeto Delivery - Programação Orientada a Objetos</p>
+        <p>Projeto Delivery &bull; Programação Orientada a Objetos</p>
     </footer>
 
     <script src="js/api.js"></script>
     <script src="js/entregadores.js"></script>
 
 </body>
-
 </html>

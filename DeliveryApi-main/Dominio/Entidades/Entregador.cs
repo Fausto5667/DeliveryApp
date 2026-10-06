@@ -4,23 +4,17 @@ using DeliveryApi.Dominio.Excecoes;
 namespace DeliveryApi.Dominio.Entidades;
 
 /// <summary>
-/// CONCEITO POO - ENCAPSULAMENTO:
-/// Representa o entregador logístico.
-/// A transição de estado de disponibilidade é estritamente controlada pelos métodos
-/// Ocupar() e Liberar(), impedindo que o objeto fique em estado inconsistente.
-/// Nota de Design POO: O tipo de veículo é modelado como uma propriedade (associação com Enum)
-/// e não como herança (ex: EntregadorCarro), pois o veículo é uma modalidade do serviço,
-/// não uma especialização do ser humano 'Entregador'.
+/// Entregador da frota. O veículo é um atributo (enum) e não uma subclasse (EntregadorMoto, EntregadorCarro):
+/// o veículo é a modalidade do serviço e não muda o que o entregador "é" nem o que ele faz.
+/// A disponibilidade só muda por Ocupar() e Liberar(), nunca por atribuição direta.
 /// </summary>
 public class Entregador
 {
+    private readonly object _trava = new();
+
     public int Id { get; private set; }
     public string Nome { get; private set; }
     public TipoVeiculo Veiculo { get; private set; }
-
-    /// <summary>
-    /// Indicador de disponibilidade com encapsulamento estrito (private set).
-    /// </summary>
     public bool Disponivel { get; private set; }
 
     public Entregador(int id, string nome, TipoVeiculo veiculo)
@@ -31,6 +25,9 @@ public class Entregador
         if (string.IsNullOrWhiteSpace(nome))
             throw new DominioException("O nome do entregador é obrigatório.");
 
+        if (!Enum.IsDefined(veiculo))
+            throw new DominioException("Modalidade de veículo inválida. Use Moto, Bicicleta ou Carro.");
+
         Id = id;
         Nome = nome.Trim();
         Veiculo = veiculo;
@@ -38,22 +35,25 @@ public class Entregador
     }
 
     /// <summary>
-    /// Aloca o entregador para uma entrega.
-    /// Garante o invariante de que um entregador já ocupado não pode ser alocado.
+    /// Aloca o entregador a uma entrega. A verificação e a troca de estado acontecem sob lock
+    /// para que duas requisições simultâneas não aloquem o mesmo entregador.
     /// </summary>
     public void Ocupar()
     {
-        if (!Disponivel)
-            throw new DominioException("Entregador indisponível.");
+        lock (_trava)
+        {
+            if (!Disponivel)
+                throw new ConflitoException("Entregador indisponível.");
 
-        Disponivel = false;
+            Disponivel = false;
+        }
     }
 
-    /// <summary>
-    /// Libera o entregador para novas rotas após a finalização da entrega do pedido.
-    /// </summary>
     public void Liberar()
     {
-        Disponivel = true;
+        lock (_trava)
+        {
+            Disponivel = true;
+        }
     }
 }

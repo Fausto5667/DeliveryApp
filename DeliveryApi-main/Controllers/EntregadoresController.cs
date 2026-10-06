@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
-using DeliveryApi.Dominio.Excecoes;
 using DeliveryApi.Dtos;
 using DeliveryApi.Servicos;
 
 namespace DeliveryApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/entregadores")]
 public class EntregadoresController : ControllerBase
 {
     private readonly EntregadorServico _servico;
@@ -16,43 +15,24 @@ public class EntregadoresController : ControllerBase
         _servico = servico;
     }
 
-    /// <summary>
-    /// Menu 5: Cadastrar novo entregador na frota.
-    /// </summary>
+    /// <summary>Menu 5: cadastra um entregador (nasce disponível).</summary>
     [HttpPost]
     [ProducesResponseType(typeof(EntregadorResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult Cadastrar([FromBody] CriarEntregadorRequest request)
     {
-        if (request is null)
-            throw new DominioException("O corpo da requisição não pode ser vazio.");
-
-        var entregador = _servico.Cadastrar(request.Nome, request.Veiculo);
-        var response = EntregadorResponse.DeDominio(entregador);
-        return CreatedAtAction(nameof(ObterPorId), new { id = entregador.Id }, response);
+        var entregador = _servico.Cadastrar(request.Nome, request.Veiculo!.Value);
+        return CreatedAtAction(nameof(ObterPorId), new { id = entregador.Id }, EntregadorResponse.DeDominio(entregador));
     }
 
-    /// <summary>
-    /// Listar entregadores da frota com seu respectivo indicador de disponibilidade.
-    /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<EntregadorResponse>), StatusCodes.Status200OK)]
-    public IActionResult Listar()
-    {
-        var entregadores = _servico.Listar();
-        var response = entregadores.Select(EntregadorResponse.DeDominio).ToList();
-        return Ok(response);
-    }
+    public IActionResult Listar() =>
+        Ok(_servico.Listar().Select(EntregadorResponse.DeDominio).ToList());
 
-    /// <summary>
-    /// Obter entregador por identificador único.
-    /// </summary>
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(EntregadorResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult ObterPorId([FromRoute] int id)
-    {
-        var entregador = _servico.ObterPorId(id);
-        return Ok(EntregadorResponse.DeDominio(entregador));
-    }
+    public IActionResult ObterPorId(int id) =>
+        Ok(EntregadorResponse.DeDominio(_servico.ObterPorId(id)));
 }

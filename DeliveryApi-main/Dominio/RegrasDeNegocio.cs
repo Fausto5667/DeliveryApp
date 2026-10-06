@@ -4,34 +4,26 @@ using DeliveryApi.Dominio.Excecoes;
 namespace DeliveryApi.Dominio;
 
 /// <summary>
-/// Centraliza as constantes numéricas e políticas de precificação de frete do domínio.
-/// Evita 'números mágicos' espalhados pelo código e encapsula as regras de tarifação.
+/// Constantes e tarifas do domínio, centralizadas para não existirem números mágicos espalhados.
 /// </summary>
 public static class RegrasDeNegocio
 {
-    /// <summary>
-    /// Pedidos cujo subtotal atinja ou supere este valor recebem frete gratuito automaticamente.
-    /// </summary>
+    /// <summary>Pedidos com subtotal acima deste valor têm frete grátis.</summary>
     public const decimal MetaFreteGratis = 80.00m;
 
-    /// <summary>
-    /// Taxa por quilômetro para entrega por Bicicleta: R$ 1,00/km.
-    /// </summary>
     public const decimal TaxaKmBicicleta = 1.00m;
-
-    /// <summary>
-    /// Taxa por quilômetro para entrega por Moto: R$ 1,50/km.
-    /// </summary>
     public const decimal TaxaKmMoto = 1.50m;
-
-    /// <summary>
-    /// Taxa por quilômetro para entrega por Carro: R$ 2,00/km.
-    /// </summary>
     public const decimal TaxaKmCarro = 2.00m;
 
-    /// <summary>
-    /// Retorna a taxa por quilômetro com base na modalidade de veículo do entregador.
-    /// </summary>
+    public const decimal PrecoMaximoItem = 10_000m;
+    public const int TempoPreparoMaximoMinutos = 600;
+    public const int VolumeMaximoMl = 10_000;
+    public const int QuantidadeMaximaPorItem = 100;
+    public const decimal DistanciaMaximaKm = 500m;
+
+    public const int TelefoneMinimoDigitos = 8;
+    public const int TelefoneMaximoDigitos = 15;
+
     public static decimal TaxaPorKm(TipoVeiculo veiculo) => veiculo switch
     {
         TipoVeiculo.Bicicleta => TaxaKmBicicleta,

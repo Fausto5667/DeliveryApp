@@ -1,58 +1,45 @@
 using DeliveryApi.Dominio.Enums;
 using DeliveryApi.Dominio.Excecoes;
+using DeliveryApi.Dominio.Frete;
 
 namespace DeliveryApi.Dominio.Entidades;
 
 /// <summary>
-/// CONCEITO POO - AGREGAÇÃO, COMPOSIÇÃO, ASSOCIAÇÃO E ENCAPSULAMENTO:
-/// - Associação: Pedido associa-se a Cliente e a Entregador (objetos com ciclo de vida independente).
-/// - Composição: A lista interna de itens (_itens) pertence exclusivamente a este pedido.
-/// - Polimorfismo: O cálculo do tempo de preparo delega para cada ItemCardapio sem checagem de tipo.
-/// - Encapsulamento: Estados e coleções são imutáveis externamente; transições ocorrem via métodos de domínio.
+/// Pedido: agrega Cliente e Entregador (existem antes e depois do pedido e são compartilhados com outros
+/// pedidos) e é composto por suas linhas ItemPedido (nascem e morrem com ele).
+/// Todo o ciclo de vida passa por métodos de domínio: AdicionarItem, Confirmar e Avancar.
 /// </summary>
 public class Pedido
 {
     private readonly List<ItemPedido> _itens = new();
+    private readonly object _trava = new();
 
     public int Id { get; private set; }
-
-    /// <summary>
-    /// CONCEITO POO - ASSOCIAÇÃO:
-    /// Referência ao cliente que solicitou o pedido.
-    /// </summary>
     public Cliente Cliente { get; private set; }
-
-    /// <summary>
-    /// CONCEITO POO - ASSOCIAÇÃO:
-    /// Referência ao entregador responsável pela rota logística.
-    /// </summary>
     public Entregador Entregador { get; private set; }
-
-    /// <summary>
-    /// Distância estimada em quilômetros até o endereço de entrega.
-    /// </summary>
     public decimal DistanciaKm { get; private set; }
+    public StatusPedido Status { get; private set; }
+    public DateTime CriadoEm { get; private set; }
+    public DateTime? EntregueEm { get; private set; }
 
-    /// <summary>
-    /// CONCEITO POO - COMPOSIÇÃO E ENCAPSULAMENTO:
-    /// Coleção interna exposta como IReadOnlyList, impedindo alterações externas diretas.
-    /// </summary>
+    /// <summary>Frete definido na confirmação; fica fixo mesmo que as tarifas mudem depois.</summary>
+    public decimal Frete { get; private set; }
+
+    public bool Confirmado { get; private set; }
+
     public IReadOnlyList<ItemPedido> Itens => _itens.AsReadOnly();
 
-    /// <summary>
-    /// Estado atual do pedido dentro da máquina de estados.
-    /// </summary>
-    public StatusPedido Status { get; private set; }
+    public decimal Subtotal => _itens.Sum(i => i.Subtotal);
+
+    public decimal Total => Subtotal + Frete;
 
     /// <summary>
-    /// Data e hora de criação do pedido.
+    /// O preparo é paralelo na cozinha, então o tempo do pedido é o do item mais demorado (não a soma).
+    /// Bebidas e sobremesas retornam 0, por isso não há necessidade de filtrar por tipo.
     /// </summary>
-    public DateTime CriadoEm { get; private set; }
+    public int TempoPreparoMinutos => _itens.Count > 0 ? _itens.Max(i => i.Item.TempoPreparoMinutos) : 0;
 
-    /// <summary>
-    /// Data e hora da conclusão da entrega.
-    /// </summary>
-    public DateTime? EntregueEm { get; private set; }
+    public StatusPedido? ProximoStatus => Status.ObterProximo();
 
     public Pedido(int id, Cliente cliente, Entregador entregador, decimal distanciaKm)
     {
@@ -65,93 +52,75 @@ public class Pedido
         if (distanciaKm <= 0)
             throw new DominioException("A distância em quilômetros deve ser maior que zero.");
 
+        if (distanciaKm > RegrasDeNegocio.DistanciaMaximaKm)
+            throw new DominioException($"A distância não pode ultrapassar {RegrasDeNegocio.DistanciaMaximaKm:N0} km.");
+
         Id = id;
         DistanciaKm = distanciaKm;
         Status = StatusPedido.Recebido;
         CriadoEm = DateTime.Now;
     }
 
-    /// <summary>
-    /// Adiciona um item ao pedido enquanto ele estiver no estado inicial 'Recebido'.
-    /// </summary>
+    /// <summary>Adiciona um item; se ele já está no pedido, apenas soma a quantidade.</summary>
     public void AdicionarItem(ItemCardapio item, int quantidade)
     {
-        if (Status != StatusPedido.Recebido)
-            throw new DominioException("Não é permitido adicionar itens a um pedido em andamento.");
+        if (item is null)
+            throw new DominioException("O item de cardápio é obrigatório.");
 
-        _itens.Add(new ItemPedido(item, quantidade));
+        if (Confirmado)
+            throw new DominioException("Não é possível alterar os itens de um pedido já confirmado.");
+
+        var existente = _itens.FirstOrDefault(i => i.Item.Codigo == item.Codigo);
+        if (existente is null)
+            _itens.Add(new ItemPedido(item, quantidade));
+        else
+            existente.Acrescentar(quantidade);
     }
 
-    /// <summary>
-    /// Soma dos subtotais de todas as linhas de itens do pedido.
-    /// </summary>
-    public decimal Subtotal => _itens.Sum(i => i.Subtotal);
+    /// <summary>Frete que este pedido teria com a calculadora informada, sem alterar o pedido.</summary>
+    public decimal CalcularFrete(ICalculadoraFrete calculadora) =>
+        calculadora.Calcular(Entregador.Veiculo, DistanciaKm, Subtotal);
 
     /// <summary>
-    /// CONCEITO POO - POLIMORFISMO:
-    /// A confecção dos pratos ocorre de forma paralela na cozinha; logo, o tempo total é determinado
-    /// pelo item de maior duração de preparo. Graças ao polimorfismo, chamamos i.Item.TempoPreparoMinutos
-    /// de maneira uniforme: Prato retorna seu tempo real e Bebida/Sobremesa retornam 0 sem if de tipo!
+    /// Fecha a montagem do pedido: exige ao menos um item, fixa o frete e aloca o entregador.
+    /// O frete é calculado antes de ocupar o entregador para que uma falha não deixe o entregador preso.
     /// </summary>
-    public int TempoPreparoMinutos => _itens.Any() ? _itens.Max(i => i.Item.TempoPreparoMinutos) : 0;
-
-    /// <summary>
-    /// Regra de negócio: frete calculado pela taxa por km do veículo multiplicada pela distância.
-    /// Se o subtotal atingir ou superar R$ 80,00, o frete é gratuito (R$ 0,00).
-    /// </summary>
-    public decimal Frete => Subtotal >= RegrasDeNegocio.MetaFreteGratis
-        ? 0m
-        : RegrasDeNegocio.TaxaPorKm(Entregador.Veiculo) * DistanciaKm;
-
-    /// <summary>
-    /// Valor final do pedido acumulando itens e frete.
-    /// </summary>
-    public decimal Total => Subtotal + Frete;
-
-    /// <summary>
-    /// Finaliza a montagem inicial do pedido e aloca o entregador selecionado.
-    /// </summary>
-    public void Confirmar()
+    public void Confirmar(ICalculadoraFrete calculadora)
     {
-        if (!_itens.Any())
+        if (Confirmado)
+            throw new DominioException("O pedido já foi confirmado.");
+
+        if (_itens.Count == 0)
             throw new DominioException("Pedido sem itens.");
 
+        var frete = CalcularFrete(calculadora);
+
         Entregador.Ocupar();
+        Frete = frete;
+        Confirmado = true;
     }
 
     /// <summary>
-    /// MÁQUINA DE ESTADOS SEQUENCIAL:
-    /// Transiciona o pedido estritamente pela sequência de negócio:
-    /// Recebido -> EmPreparo -> Pronto -> EmRota -> Entregue.
-    /// Ao finalizar a entrega, registra o horário e libera o entregador para novas rotas.
+    /// Avança um passo na sequência Recebido, EmPreparo, Pronto, EmRota, Entregue, sem permitir pular etapas.
+    /// Ao entregar, registra o horário e libera o entregador.
     /// </summary>
     public void Avancar()
     {
-        switch (Status)
+        lock (_trava)
         {
-            case StatusPedido.Recebido:
-                Status = StatusPedido.EmPreparo;
-                break;
+            if (!Confirmado)
+                throw new DominioException("O pedido ainda não foi confirmado.");
 
-            case StatusPedido.EmPreparo:
-                Status = StatusPedido.Pronto;
-                break;
+            var proximo = Status.ObterProximo()
+                ?? throw new ConflitoException("Pedido já foi entregue.");
 
-            case StatusPedido.Pronto:
-                Status = StatusPedido.EmRota;
-                break;
+            Status = proximo;
 
-            case StatusPedido.EmRota:
-                Status = StatusPedido.Entregue;
+            if (proximo == StatusPedido.Entregue)
+            {
                 EntregueEm = DateTime.Now;
                 Entregador.Liberar();
-                break;
-
-            case StatusPedido.Entregue:
-                throw new DominioException("Pedido já foi entregue.");
-
-            default:
-                throw new DominioException("Status desconhecido do pedido.");
+            }
         }
     }
 }

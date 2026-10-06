@@ -1,29 +1,11 @@
-using System.Collections.Concurrent;
 using DeliveryApi.Dominio.Entidades;
 
 namespace DeliveryApi.Repositorios;
 
-/// <summary>
-/// CONCEITO POO - POLIMORFISMO DE INTERFACE:
-/// Implementação em memória do repositório de clientes indexado por telefone.
-/// </summary>
-public class RepositorioClienteMemoria : IClienteRepositorio
+public class RepositorioClienteMemoria : RepositorioMemoria<Cliente, string>
 {
-    private readonly ConcurrentDictionary<string, Cliente> _clientes = new();
+    protected override string ObterId(Cliente cliente) => cliente.Telefone;
 
-    public void Adicionar(Cliente cliente)
-    {
-        _clientes[cliente.Telefone] = cliente;
-    }
-
-    public Cliente? ObterPorTelefone(string telefone)
-    {
-        _clientes.TryGetValue(telefone.Trim(), out var cliente);
-        return cliente;
-    }
-
-    public IReadOnlyList<Cliente> ListarTodos()
-    {
-        return _clientes.Values.OrderBy(c => c.Nome).ToList().AsReadOnly();
-    }
+    protected override IEnumerable<Cliente> Ordenar(IEnumerable<Cliente> clientes) =>
+        clientes.OrderBy(c => c.Nome, StringComparer.CurrentCultureIgnoreCase);
 }

@@ -1,8 +1,6 @@
 namespace DeliveryApi.Dominio.Enums;
 
-/// <summary>
-/// Representa as modalidades de veículos permitidas para os entregadores no domínio.
-/// </summary>
+/// <summary>Modalidades de veículo permitidas para os entregadores.</summary>
 public enum TipoVeiculo
 {
     Moto,

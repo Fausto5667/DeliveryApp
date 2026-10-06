@@ -1,42 +1,41 @@
+using DeliveryApi.Dominio.Enums;
 using DeliveryApi.Servicos;
 
 namespace DeliveryApi.Dtos;
 
-/// <summary>
-/// DTO de item mais vendido no relatório gerencial.
-/// </summary>
 public record ItemMaisVendidoDto(
     int Codigo,
     string Nome,
-    string Categoria,
+    CategoriaItem Categoria,
     int QuantidadeVendida,
-    decimal TotalFaturado
-);
-
-/// <summary>
-/// DTO de saída para o relatório gerencial completo.
-/// </summary>
-public record RelatorioGerencialResponse(
-    IReadOnlyList<ItemMaisVendidoDto> ItensMaisVendidos,
-    double TempoMedioEntregaMinutos,
-    string MensagemTempoMedio,
-    decimal FaturamentoTotal,
-    int TotalPedidosEntregues,
-    int TotalPedidosGeral
+    decimal TotalVendido
 )
 {
+    public decimal TotalFaturado => TotalVendido;
+}
+
+public record RelatorioGerencialResponse(
+    IReadOnlyList<ItemMaisVendidoDto> ItensMaisVendidos,
+    double? TempoMedioEntregaMinutos,
+    decimal FaturamentoTotal,
+    int TotalPedidosEntregues,
+    int TotalPedidos,
+    string? MensagemTempoMedio = null
+)
+{
+    public int TotalPedidosGeral => TotalPedidos;
+
     public static RelatorioGerencialResponse DeDominio(RelatorioGerencial relatorio) => new(
-        relatorio.ItensMaisVendidos.Select(i => new ItemMaisVendidoDto(
-            i.Codigo,
-            i.Nome,
-            i.Categoria,
-            i.QuantidadeVendida,
-            i.TotalFaturado
-        )).ToList().AsReadOnly(),
+        relatorio.ItensMaisVendidos
+            .Select(i => new ItemMaisVendidoDto(i.Codigo, i.Nome, i.Categoria, i.QuantidadeVendida, i.TotalVendido))
+            .ToList()
+            .AsReadOnly(),
         relatorio.TempoMedioEntregaMinutos,
-        relatorio.MensagemTempoMedio,
         relatorio.FaturamentoTotal,
         relatorio.TotalPedidosEntregues,
-        relatorio.TotalPedidosGeral
+        relatorio.TotalPedidos,
+        relatorio.TempoMedioEntregaMinutos.HasValue
+            ? $"{relatorio.TempoMedioEntregaMinutos.Value:N1} minutos"
+            : "Nenhum pedido entregue ainda"
     );
 }

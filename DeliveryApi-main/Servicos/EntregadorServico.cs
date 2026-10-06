@@ -5,40 +5,31 @@ using DeliveryApi.Repositorios;
 
 namespace DeliveryApi.Servicos;
 
-/// <summary>
-/// Camada de Serviço responsável pela gestão de entregadores da frota.
-/// Controla o cadastro e identificação dos operadores logísticos.
-/// </summary>
 public class EntregadorServico
 {
-    private readonly IRepositorio<Entregador> _repositorio;
-    private int _contadorId = 0;
+    private readonly IRepositorio<Entregador, int> _repositorio;
+    private readonly object _trava = new();
+    private int _proximoId = 1;
 
-    public EntregadorServico(IRepositorio<Entregador> repositorio)
+    public EntregadorServico(IRepositorio<Entregador, int> repositorio)
     {
         _repositorio = repositorio;
     }
 
-    private int ProximoId() => Interlocked.Increment(ref _contadorId);
-
     public Entregador Cadastrar(string nome, TipoVeiculo veiculo)
     {
-        var entregador = new Entregador(ProximoId(), nome, veiculo);
-        _repositorio.Adicionar(entregador);
-        return entregador;
+        lock (_trava)
+        {
+            var entregador = new Entregador(_proximoId, nome, veiculo);
+            _repositorio.Adicionar(entregador);
+            _proximoId++;
+            return entregador;
+        }
     }
 
-    public IReadOnlyList<Entregador> Listar()
-    {
-        return _repositorio.ListarTodos();
-    }
+    public IReadOnlyList<Entregador> Listar() => _repositorio.ListarTodos();
 
-    public Entregador ObterPorId(int id)
-    {
-        var entregador = _repositorio.ObterPorId(id);
-        if (entregador is null)
-            throw new NaoEncontradoException($"Entregador com identificador {id} não encontrado.");
-
-        return entregador;
-    }
+    public Entregador ObterPorId(int id) =>
+        _repositorio.ObterPorId(id)
+            ?? throw new NaoEncontradoException($"Entregador com identificador {id} não encontrado.");
 }

@@ -1,95 +1,70 @@
-using DeliveryApi.Dominio.Enums;
 using DeliveryApi.Dominio.Entidades;
+using DeliveryApi.Dominio.Enums;
 using DeliveryApi.Repositorios;
 
 namespace DeliveryApi.Servicos;
 
-/// <summary>
-/// Modelo de dados representativo para itens mais vendidos no relatório gerencial.
-/// </summary>
-public record ItemMaisVendidoRelatorio(
+public record ItemMaisVendido(
     int Codigo,
     string Nome,
-    string Categoria,
+    CategoriaItem Categoria,
     int QuantidadeVendida,
-    decimal TotalFaturado
-);
+    decimal TotalVendido);
 
 /// <summary>
-/// Modelo de dados representativo para o relatório gerencial completo.
+/// TempoMedioEntregaMinutos é null enquanto não houver pedido entregue.
 /// </summary>
 public record RelatorioGerencial(
-    IReadOnlyList<ItemMaisVendidoRelatorio> ItensMaisVendidos,
-    double TempoMedioEntregaMinutos,
-    string MensagemTempoMedio,
+    IReadOnlyList<ItemMaisVendido> ItensMaisVendidos,
+    double? TempoMedioEntregaMinutos,
     decimal FaturamentoTotal,
     int TotalPedidosEntregues,
-    int TotalPedidosGeral
-);
+    int TotalPedidos);
 
-/// <summary>
-/// Camada de Serviço para emissão de métricas e relatórios gerenciais consolidados do negócio.
-/// </summary>
 public class RelatorioServico
 {
-    private readonly IRepositorio<Pedido> _repositorioPedido;
+    private const int QuantidadeNoRanking = 5;
 
-    public RelatorioServico(IRepositorio<Pedido> repositorioPedido)
+    private readonly IRepositorio<Pedido, int> _repositorioPedido;
+
+    public RelatorioServico(IRepositorio<Pedido, int> repositorioPedido)
     {
         _repositorioPedido = repositorioPedido;
     }
 
+    /// <summary>
+    /// Critérios: o ranking considera todos os pedidos feitos (o que foi vendido); tempo médio e faturamento
+    /// consideram apenas pedidos entregues (a receita só se realiza na entrega). O faturamento inclui o frete.
+    /// </summary>
     public RelatorioGerencial Gerar()
     {
-        var todosPedidos = _repositorioPedido.ListarTodos();
-        var pedidosEntregues = todosPedidos.Where(p => p.Status == StatusPedido.Entregue).ToList();
+        var pedidos = _repositorioPedido.ListarTodos();
+        var entregues = pedidos.Where(p => p.Status == StatusPedido.Entregue && p.EntregueEm.HasValue).ToList();
 
-        // 1. Itens mais vendidos (Top 5 a partir de todos os pedidos)
-        var itensMaisVendidos = todosPedidos
+        var maisVendidos = pedidos
             .SelectMany(p => p.Itens)
-            .GroupBy(i => new { i.Item.Codigo, i.Item.Nome, i.Item.Categoria })
-            .Select(g => new ItemMaisVendidoRelatorio(
-                g.Key.Codigo,
-                g.Key.Nome,
-                g.Key.Categoria,
-                g.Sum(x => x.Quantidade),
-                g.Sum(x => x.Subtotal)
-            ))
-            .OrderByDescending(x => x.QuantidadeVendida)
-            .Take(5)
+            .GroupBy(i => i.Item.Codigo)
+            .Select(g => new ItemMaisVendido(
+                g.Key,
+                g.First().Item.Nome,
+                g.First().Item.Categoria,
+                g.Sum(i => i.Quantidade),
+                g.Sum(i => i.Subtotal)))
+            .OrderByDescending(i => i.QuantidadeVendida)
+            .ThenBy(i => i.Nome, StringComparer.CurrentCultureIgnoreCase)
+            .Take(QuantidadeNoRanking)
             .ToList()
             .AsReadOnly();
 
-        // 2. Tempo médio de entrega em minutos
-        double tempoMedioMinutos = 0.0;
-        string mensagemTempoMedio;
-
-        var entreguesComData = pedidosEntregues
-            .Where(p => p.EntregueEm.HasValue)
-            .ToList();
-
-        if (entreguesComData.Any())
-        {
-            tempoMedioMinutos = entreguesComData
-                .Average(p => (p.EntregueEm!.Value - p.CriadoEm).TotalMinutes);
-            tempoMedioMinutos = Math.Round(tempoMedioMinutos, 2);
-            mensagemTempoMedio = $"{tempoMedioMinutos} minutos";
-        }
-        else
-        {
-            mensagemTempoMedio = "Nenhum pedido entregue até o momento.";
-        }
-
-        // 3. Faturamento total dos pedidos entregues
-        decimal faturamentoTotal = pedidosEntregues.Sum(p => p.Total);
+        double? tempoMedio = entregues.Count > 0
+            ? Math.Round(entregues.Average(p => (p.EntregueEm!.Value - p.CriadoEm).TotalMinutes), 2)
+            : null;
 
         return new RelatorioGerencial(
-            itensMaisVendidos,
-            tempoMedioMinutos,
-            mensagemTempoMedio,
-            faturamentoTotal,
-            pedidosEntregues.Count,
-            todosPedidos.Count
-        );
+            maisVendidos,
+            tempoMedio,
+            entregues.Sum(p => p.Total),
+            entregues.Count,
+            pedidos.Count);
     }
 }

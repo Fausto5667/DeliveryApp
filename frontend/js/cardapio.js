@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnCancelarItem = document.getElementById("btnCancelarItem");
     const formItem = document.getElementById("formItem");
     const btnBuscar = document.getElementById("btnBuscar");
+    const inputBusca = document.getElementById("buscaCardapio");
     const btnListar = document.getElementById("btnListar");
 
     if (tipoItem) {
@@ -15,9 +16,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (btnNovoItem) {
         btnNovoItem.addEventListener("click", () => {
-            document
-                .getElementById("formularioItem")
-                .classList.remove("oculto");
+            document.getElementById("formularioItem")?.classList.remove("oculto");
+            document.getElementById("nomeItem")?.focus();
         });
     }
 
@@ -25,10 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnCancelarItem.addEventListener("click", () => {
             formItem.reset();
             atualizarCamposEspecificos();
-
-            document
-                .getElementById("formularioItem")
-                .classList.add("oculto");
+            document.getElementById("formularioItem")?.classList.add("oculto");
         });
     }
 
@@ -40,49 +37,57 @@ document.addEventListener("DOMContentLoaded", () => {
         btnBuscar.addEventListener("click", buscarItens);
     }
 
+    if (inputBusca) {
+        inputBusca.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                buscarItens();
+            }
+        });
+    }
+
     if (btnListar) {
-        btnListar.addEventListener("click", carregarItens);
+        btnListar.addEventListener("click", () => {
+            if (inputBusca) inputBusca.value = "";
+            carregarItens();
+        });
     }
 
     carregarItens();
 });
 
 function atualizarCamposEspecificos() {
-    const tipo = document.getElementById("tipoItem")?.value;
+    const tipo = document.getElementById("tipoItem")?.value?.toLowerCase();
 
-    document
-        .getElementById("campoPrato")
-        ?.classList.toggle("oculto", tipo !== "prato");
+    const campoPrato = document.getElementById("campoPrato");
+    const campoBebida = document.getElementById("campoBebida");
+    const campoSobremesa = document.getElementById("campoSobremesa");
 
-    document
-        .getElementById("campoBebida")
-        ?.classList.toggle("oculto", tipo !== "bebida");
+    if (campoPrato) campoPrato.classList.toggle("oculto", tipo !== "prato");
+    if (campoBebida) campoBebida.classList.toggle("oculto", tipo !== "bebida");
+    if (campoSobremesa) campoSobremesa.classList.toggle("oculto", tipo !== "sobremesa");
 
-    document
-        .getElementById("campoSobremesa")
-        ?.classList.toggle("oculto", tipo !== "sobremesa");
+    // Requisitar os campos específicos apenas quando visíveis
+    const tempoInput = document.getElementById("tempoPreparo");
+    const volumeInput = document.getElementById("volumeBebida");
+    if (tempoInput) tempoInput.required = (tipo === "prato");
+    if (volumeInput) volumeInput.required = (tipo === "bebida");
 }
 
 async function carregarItens() {
     try {
-        const dados = await requisicao("/Cardapio");
-
+        const dados = await requisicao("/cardapio");
         itensCardapio = obterLista(dados);
-
         renderizarItens(itensCardapio);
-
     } catch (erro) {
         itensCardapio = [];
-
         renderizarItens([]);
+        mostrarMensagem(`Erro ao carregar cardápio: ${erro.message}`, "erro");
     }
 }
 
 async function buscarItens() {
-    const busca = document
-        .getElementById("buscaCardapio")
-        .value
-        .trim();
+    const busca = document.getElementById("buscaCardapio")?.value?.trim() ?? "";
 
     if (!busca) {
         carregarItens();
@@ -90,113 +95,84 @@ async function buscarItens() {
     }
 
     try {
-        const dados = await requisicao(
-            `/Cardapio/buscar?nome=${encodeURIComponent(busca)}`
-        );
-
+        const dados = await requisicao(`/cardapio/buscar?nome=${encodeURIComponent(busca)}`);
         itensCardapio = obterLista(dados);
-
         renderizarItens(itensCardapio);
-
     } catch (erro) {
+        // Fallback local se a requisição falhar
         const resultado = itensCardapio.filter(item =>
-            obterNomeItem(item)
-                .toLowerCase()
-                .includes(busca.toLowerCase())
+            obterNomeItem(item).toLowerCase().includes(busca.toLowerCase())
         );
-
         renderizarItens(resultado);
+        mostrarMensagem(`Busca: ${erro.message}`, "erro");
     }
 }
 
 function obterNomeItem(item) {
-    return item?.nome ??
-        item?.Nome ??
-        "Sem nome";
+    return item?.nome ?? item?.Nome ?? "Sem nome";
 }
 
 function obterTipoItem(item) {
-    return item?.categoria ??
-        item?.Categoria ??
-        "-";
+    return item?.categoria ?? item?.Categoria ?? "-";
 }
 
 function obterPrecoItem(item) {
-    return item?.precoBase ??
-        item?.PrecoBase ??
-        0;
+    return item?.precoBase ?? item?.PrecoBase ?? 0;
+}
+
+function obterDetalhesItem(item) {
+    return item?.detalhes ?? item?.Detalhes ?? "-";
 }
 
 function renderizarItens(itens) {
     const tabela = document.getElementById("tabelaCardapio");
-
-    if (!tabela) {
-        return;
-    }
+    if (!tabela) return;
 
     if (!itens.length) {
         tabela.innerHTML = `
             <tr>
-                <td colspan="4">
-                    Nenhum item encontrado.
+                <td colspan="5" style="text-align: center; color: var(--texto-secundario); padding: 24px;">
+                    Nenhum item encontrado no cardápio.
                 </td>
             </tr>
         `;
-
         return;
     }
 
-    tabela.innerHTML = itens.map(item => `
-        <tr>
-            <td>${obterId(item) ?? "-"}</td>
+    tabela.innerHTML = itens.map(item => {
+        const cat = obterTipoItem(item);
+        const classeTag = cat.toLowerCase() === "prato" ? "tag-prato" : (cat.toLowerCase() === "bebida" ? "tag-bebida" : "tag-sobremesa");
 
-            <td>
-                ${obterNomeItem(item)}
-            </td>
-
-            <td>
-                ${obterTipoItem(item)}
-            </td>
-
-            <td>
-                ${formatarMoeda(obterPrecoItem(item))}
-            </td>
-        </tr>
-    `).join("");
+        return `
+            <tr>
+                <td><strong>#${obterId(item) ?? "-"}</strong></td>
+                <td>${obterNomeItem(item)}</td>
+                <td><span class="badge ${classeTag}">${cat}</span></td>
+                <td><strong>${formatarMoeda(obterPrecoItem(item))}</strong></td>
+                <td><em>${obterDetalhesItem(item)}</em></td>
+            </tr>
+        `;
+    }).join("");
 }
 
 async function cadastrarItem(evento) {
     evento.preventDefault();
 
-    const tipo = document
-        .getElementById("tipoItem")
-        .value;
+    const tipoRaw = document.getElementById("tipoItem")?.value ?? "";
+    const nome = document.getElementById("nomeItem")?.value?.trim() ?? "";
+    const preco = Number(document.getElementById("precoItem")?.value?.replace(",", ".") ?? 0);
 
-    const nome = document
-        .getElementById("nomeItem")
-        .value
-        .trim();
-
-    const preco = Number(
-        document
-            .getElementById("precoItem")
-            .value
-            .replace(",", ".")
-    );
-
-    if (
-        !tipo ||
-        !nome ||
-        !Number.isFinite(preco) ||
-        preco <= 0
-    ) {
-        mostrarMensagem(
-            "Preencha corretamente todos os campos.",
-            "erro"
-        );
-
+    if (!tipoRaw || !nome || !Number.isFinite(preco) || preco <= 0) {
+        mostrarMensagem("Preencha corretamente o tipo, nome e preço base.", "erro");
         return;
     }
+
+    const mapaTipos = {
+        prato: "Prato",
+        bebida: "Bebida",
+        sobremesa: "Sobremesa"
+    };
+    const tipo = mapaTipos[tipoRaw.toLowerCase()] || tipoRaw;
 
     const dados = {
         tipo: tipo,
@@ -204,84 +180,38 @@ async function cadastrarItem(evento) {
         precoBase: preco
     };
 
-    if (tipo === "prato") {
-        const tempo = Number(
-            document
-                .getElementById("tempoPreparo")
-                .value
-        );
-
-        if (
-            !Number.isFinite(tempo) ||
-            tempo <= 0
-        ) {
-            mostrarMensagem(
-                "Informe um tempo de preparo válido.",
-                "erro"
-            );
-
+    if (tipo === "Prato") {
+        const tempo = Number(document.getElementById("tempoPreparo")?.value);
+        if (!Number.isFinite(tempo) || tempo <= 0) {
+            mostrarMensagem("Informe um tempo de preparo válido em minutos.", "erro");
             return;
         }
-
         dados.tempoPreparo = tempo;
-    }
-
-    if (tipo === "bebida") {
-        const volume = Number(
-            document
-                .getElementById("volumeBebida")
-                .value
-        );
-
-        if (
-            !Number.isFinite(volume) ||
-            volume <= 0
-        ) {
-            mostrarMensagem(
-                "Informe um volume válido.",
-                "erro"
-            );
-
+    } else if (tipo === "Bebida") {
+        const volume = Number(document.getElementById("volumeBebida")?.value);
+        if (!Number.isFinite(volume) || volume <= 0) {
+            mostrarMensagem("Informe um volume válido em ml.", "erro");
             return;
         }
-
         dados.volumeMl = volume;
-    }
-
-    if (tipo === "sobremesa") {
-        dados.gelada =
-            document
-                .getElementById("refrigerada")
-                .value === "true";
+    } else if (tipo === "Sobremesa") {
+        dados.gelada = document.getElementById("refrigerada")?.value === "true";
     }
 
     try {
-        await requisicao("/Cardapio", {
+        await requisicao("/cardapio", {
             method: "POST",
             body: JSON.stringify(dados)
         });
 
-        mostrarMensagem(
-            "Item cadastrado com sucesso.",
-            "sucesso"
-        );
+        mostrarMensagem("Item adicionado ao cardápio com sucesso!", "sucesso");
 
-        document
-            .getElementById("formItem")
-            .reset();
-
+        document.getElementById("formItem")?.reset();
         atualizarCamposEspecificos();
-
-        document
-            .getElementById("formularioItem")
-            .classList.add("oculto");
+        document.getElementById("formularioItem")?.classList.add("oculto");
 
         await carregarItens();
-
     } catch (erro) {
-        mostrarMensagem(
-            `Não foi possível cadastrar o item: ${erro.message}`,
-            "erro"
-        );
+        mostrarMensagem(`Não foi possível cadastrar o item: ${erro.message}`, "erro");
     }
 }

@@ -3,26 +3,13 @@ using DeliveryApi.Dominio.Excecoes;
 namespace DeliveryApi.Dominio.Entidades;
 
 /// <summary>
-/// CONCEITO POO - ENCAPSULAMENTO E ABSTRAÇÃO:
-/// Modela a entidade Cliente. O telefone atua como identificador único natural no sistema.
-/// O estado interno é protegido: o telefone é imutável após a criação e os dados são validados.
+/// Cliente do delivery. O telefone é o identificador único e fica guardado só com dígitos,
+/// para que "(11) 99999-0000" e "11999990000" sejam reconhecidos como o mesmo cliente.
 /// </summary>
 public class Cliente
 {
-    /// <summary>
-    /// Identificador único do cliente no sistema.
-    /// É somente leitura (sem setter), garantindo imutabilidade de identidade.
-    /// </summary>
     public string Telefone { get; }
-
-    /// <summary>
-    /// Nome completo do cliente, protegido por encapsulamento (private set).
-    /// </summary>
     public string Nome { get; private set; }
-
-    /// <summary>
-    /// Endereço completo para entrega de pedidos.
-    /// </summary>
     public string Endereco { get; private set; }
 
     public Cliente(string nome, string telefone, string endereco)
@@ -30,14 +17,35 @@ public class Cliente
         if (string.IsNullOrWhiteSpace(nome))
             throw new DominioException("O nome do cliente é obrigatório.");
 
-        if (string.IsNullOrWhiteSpace(telefone))
-            throw new DominioException("O telefone do cliente é obrigatório.");
-
         if (string.IsNullOrWhiteSpace(endereco))
             throw new DominioException("O endereço do cliente é obrigatório.");
 
+        Telefone = NormalizarTelefone(telefone);
         Nome = nome.Trim();
-        Telefone = telefone.Trim();
         Endereco = endereco.Trim();
+    }
+
+    /// <summary>
+    /// Aceita apenas dígitos e os separadores usuais ( ) - + . e espaço, e devolve somente os dígitos.
+    /// </summary>
+    public static string NormalizarTelefone(string? telefone)
+    {
+        if (string.IsNullOrWhiteSpace(telefone))
+            throw new DominioException("O telefone do cliente é obrigatório.");
+
+        var digitos = new List<char>();
+        foreach (var caractere in telefone.Trim())
+        {
+            if (caractere is >= '0' and <= '9')
+                digitos.Add(caractere);
+            else if (!(char.IsWhiteSpace(caractere) || caractere is '(' or ')' or '-' or '+' or '.'))
+                throw new DominioException("O telefone deve conter apenas números, espaços, parênteses, hífen ou +.");
+        }
+
+        if (digitos.Count < RegrasDeNegocio.TelefoneMinimoDigitos || digitos.Count > RegrasDeNegocio.TelefoneMaximoDigitos)
+            throw new DominioException(
+                $"O telefone deve ter entre {RegrasDeNegocio.TelefoneMinimoDigitos} e {RegrasDeNegocio.TelefoneMaximoDigitos} dígitos.");
+
+        return new string(digitos.ToArray());
     }
 }

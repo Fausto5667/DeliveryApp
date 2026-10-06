@@ -3,36 +3,37 @@ using DeliveryApi.Dominio.Excecoes;
 namespace DeliveryApi.Dominio.Entidades;
 
 /// <summary>
-/// CONCEITO POO - COMPOSIÇÃO E ASSOCIAÇÃO:
-/// Representa uma linha de item dentro do pedido com sua respectiva quantidade.
-/// - Composição em relação ao Pedido: ItemPedido não tem ciclo de vida próprio fora do Pedido.
-/// - Associação em relação ao ItemCardapio: associa-se polimorficamente a qualquer subtipo
-///   (Prato, Bebida ou Sobremesa) sem acoplamento direto com as classes concretas.
+/// Linha de um pedido: um item do cardápio e sua quantidade. É parte do Pedido (composição): só é criada
+/// por Pedido.AdicionarItem e não existe fora dele. Já o ItemCardapio referenciado continua existindo
+/// independentemente do pedido (associação).
 /// </summary>
 public class ItemPedido
 {
-    /// <summary>
-    /// Item de cardápio associado (Prato, Bebida ou Sobremesa).
-    /// </summary>
     public ItemCardapio Item { get; private set; }
-
-    /// <summary>
-    /// Quantidade de unidades deste item.
-    /// </summary>
     public int Quantidade { get; private set; }
 
-    /// <summary>
-    /// Subtotal calculado pelo produto entre o preço base do item e a quantidade.
-    /// </summary>
     public decimal Subtotal => Item.PrecoBase * Quantidade;
 
-    public ItemPedido(ItemCardapio item, int quantidade)
+    internal ItemPedido(ItemCardapio item, int quantidade)
     {
         Item = item ?? throw new DominioException("O item de cardápio é obrigatório.");
+        ValidarQuantidade(quantidade);
+        Quantidade = quantidade;
+    }
 
+    internal void Acrescentar(int quantidade)
+    {
+        ValidarQuantidade(quantidade);
+        ValidarQuantidade(Quantidade + quantidade);
+        Quantidade += quantidade;
+    }
+
+    private static void ValidarQuantidade(int quantidade)
+    {
         if (quantidade <= 0)
             throw new DominioException("A quantidade do item deve ser maior que zero.");
 
-        Quantidade = quantidade;
+        if (quantidade > RegrasDeNegocio.QuantidadeMaximaPorItem)
+            throw new DominioException($"A quantidade de um item não pode ultrapassar {RegrasDeNegocio.QuantidadeMaximaPorItem} unidades.");
     }
 }

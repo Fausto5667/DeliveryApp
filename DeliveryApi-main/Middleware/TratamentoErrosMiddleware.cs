@@ -5,12 +5,14 @@ using DeliveryApi.Dominio.Excecoes;
 namespace DeliveryApi.Middleware;
 
 /// <summary>
-/// Middleware global para tratamento centralizado de exceções operacionais e de domínio.
-/// Garante que nenhuma falha cause interrupção abrupta da API e padroniza as respostas de erro em JSON:
-/// { "erro": "mensagem clara" }
+/// Converte qualquer exceção em uma resposta HTTP controlada no formato { "erro": "mensagem" }:
+/// NaoEncontradoException 404, ConflitoException 409, DominioException 400 e o restante 500
+/// (sem expor detalhes internos). Nenhuma falha derruba a aplicação.
 /// </summary>
 public class TratamentoErrosMiddleware
 {
+    private static readonly JsonSerializerOptions OpcoesJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     private readonly RequestDelegate _next;
     private readonly ILogger<TratamentoErrosMiddleware> _logger;
 
@@ -26,60 +28,52 @@ public class TratamentoErrosMiddleware
         {
             await _next(context);
         }
-        catch (NaoEncontradoException ex)
-        {
-            _logger.LogWarning(ex, "Recurso não encontrado: {Mensagem}", ex.Message);
-            await EscreverRespostaErroAsync(context, StatusCodes.Status404NotFound, ex.Message);
-        }
-        catch (DominioException ex)
-        {
-            _logger.LogWarning(ex, "Violação de regra de negócio/domínio: {Mensagem}", ex.Message);
-
-            // Mapeia conflitos operacionais (ex: entregador ocupado/indisponível ou telefone duplicado) para 409 Conflict
-            int statusCode = EhConflito(ex.Message)
-                ? StatusCodes.Status409Conflict
-                : StatusCodes.Status400BadRequest;
-
-            await EscreverRespostaErroAsync(context, statusCode, ex.Message);
-        }
-        catch (BadHttpRequestException ex)
-        {
-            _logger.LogWarning(ex, "Requisição mal formatada: {Mensagem}", ex.Message);
-            await EscreverRespostaErroAsync(context, StatusCodes.Status400BadRequest, "Formato de requisição inválido.");
-        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Erro interno não tratado no servidor.");
-            await EscreverRespostaErroAsync(
-                context,
-                StatusCodes.Status500InternalServerError,
-                "Ocorreu um erro interno no servidor. Tente novamente mais tarde."
-            );
+            if (context.Response.HasStarted)
+            {
+                _logger.LogError(ex, "Falha após o início da resposta; não é possível enviar JSON de erro.");
+                throw;
+            }
+
+            var (status, mensagem) = Classificar(ex);
+            await EscreverErroAsync(context, status, mensagem);
         }
     }
 
-    private static bool EhConflito(string mensagem)
+    // A ordem importa: NaoEncontrado e Conflito herdam de DominioException e precisam ser testados antes.
+    private (int Status, string Mensagem) Classificar(Exception ex)
     {
-        var msg = mensagem.ToLowerInvariant();
-        return msg.Contains("indisponível")
-            || msg.Contains("indisponivel")
-            || msg.Contains("já existe")
-            || msg.Contains("ja existe")
-            || msg.Contains("duplicado");
+        switch (ex)
+        {
+            case NaoEncontradoException:
+                _logger.LogInformation("Recurso não encontrado: {Mensagem}", ex.Message);
+                return (StatusCodes.Status404NotFound, ex.Message);
+
+            case ConflitoException:
+                _logger.LogInformation("Conflito de regra de negócio: {Mensagem}", ex.Message);
+                return (StatusCodes.Status409Conflict, ex.Message);
+
+            case DominioException:
+                _logger.LogInformation("Regra de negócio violada: {Mensagem}", ex.Message);
+                return (StatusCodes.Status400BadRequest, ex.Message);
+
+            case BadHttpRequestException requisicaoInvalida:
+                _logger.LogWarning("Requisição inválida: {Mensagem}", requisicaoInvalida.Message);
+                return (requisicaoInvalida.StatusCode, "Requisição inválida.");
+
+            default:
+                _logger.LogError(ex, "Erro interno não tratado.");
+                return (StatusCodes.Status500InternalServerError, "Ocorreu um erro interno no servidor. Tente novamente mais tarde.");
+        }
     }
 
-    private static async Task EscreverRespostaErroAsync(HttpContext context, int statusCode, string mensagem)
+    public static async Task EscreverErroAsync(HttpContext context, int status, string mensagem)
     {
         context.Response.Clear();
-        context.Response.StatusCode = statusCode;
+        context.Response.StatusCode = status;
         context.Response.ContentType = MediaTypeNames.Application.Json;
 
-        var payload = new { erro = mensagem };
-        var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
-
-        await context.Response.WriteAsync(json);
+        await context.Response.WriteAsync(JsonSerializer.Serialize(new { erro = mensagem }, OpcoesJson));
     }
 }

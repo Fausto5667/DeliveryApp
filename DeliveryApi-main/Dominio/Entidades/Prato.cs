@@ -1,18 +1,11 @@
+using DeliveryApi.Dominio.Enums;
 using DeliveryApi.Dominio.Excecoes;
 
 namespace DeliveryApi.Dominio.Entidades;
 
-/// <summary>
-/// CONCEITO POO - HERANÇA:
-/// Prato "é um" ItemCardapio. Herda código, nome e preço base,
-/// e especializa o conceito com seu tempo específico de confecção na cozinha.
-/// </summary>
+/// <summary>Prato: item que passa pela cozinha e por isso tem tempo de preparo.</summary>
 public class Prato : ItemCardapio
 {
-    /// <summary>
-    /// CONCEITO POO - ENCAPSULAMENTO:
-    /// Tempo de preparo em minutos na cozinha, imutável externamente após construção.
-    /// </summary>
     public int TempoPreparo { get; private set; }
 
     public Prato(int codigo, string nome, decimal precoBase, int tempoPreparo)
@@ -21,24 +14,15 @@ public class Prato : ItemCardapio
         if (tempoPreparo <= 0)
             throw new DominioException("O tempo de preparo do prato deve ser maior que zero minutos.");
 
+        if (tempoPreparo > RegrasDeNegocio.TempoPreparoMaximoMinutos)
+            throw new DominioException($"O tempo de preparo não pode ultrapassar {RegrasDeNegocio.TempoPreparoMaximoMinutos} minutos.");
+
         TempoPreparo = tempoPreparo;
     }
 
-    /// <summary>
-    /// CONCEITO POO - POLIMORFISMO (sobrescrita de membro abstrato):
-    /// Identifica dinamicamente a categoria específica deste item.
-    /// </summary>
-    public override string Categoria => "Prato";
+    public override CategoriaItem Categoria => CategoriaItem.Prato;
 
-    /// <summary>
-    /// CONCEITO POO - POLIMORFISMO:
-    /// Sobrescreve a propriedade virtual da classe base para fornecer o tempo real de preparo.
-    /// </summary>
     public override int TempoPreparoMinutos => TempoPreparo;
 
-    /// <summary>
-    /// CONCEITO POO - POLIMORFISMO:
-    /// Fornece a representação textual dos detalhes técnicos exclusivos de um prato.
-    /// </summary>
     public override string ObterDetalhes() => $"Preparo: {TempoPreparo} min";
 }

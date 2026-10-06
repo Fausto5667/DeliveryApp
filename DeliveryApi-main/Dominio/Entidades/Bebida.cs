@@ -1,18 +1,11 @@
+using DeliveryApi.Dominio.Enums;
 using DeliveryApi.Dominio.Excecoes;
 
 namespace DeliveryApi.Dominio.Entidades;
 
-/// <summary>
-/// CONCEITO POO - HERANÇA:
-/// Bebida "é um" ItemCardapio. Especializa a classe base agregando
-/// a declaração do volume em mililitros.
-/// </summary>
+/// <summary>Bebida: item com volume declarado em mililitros. Não passa pela cozinha.</summary>
 public class Bebida : ItemCardapio
 {
-    /// <summary>
-    /// CONCEITO POO - ENCAPSULAMENTO:
-    /// Volume líquido declarado em mililitros (ml).
-    /// </summary>
     public int VolumeMl { get; private set; }
 
     public Bebida(int codigo, string nome, decimal precoBase, int volumeMl)
@@ -21,18 +14,13 @@ public class Bebida : ItemCardapio
         if (volumeMl <= 0)
             throw new DominioException("O volume da bebida deve ser maior que zero ml.");
 
+        if (volumeMl > RegrasDeNegocio.VolumeMaximoMl)
+            throw new DominioException($"O volume da bebida não pode ultrapassar {RegrasDeNegocio.VolumeMaximoMl} ml.");
+
         VolumeMl = volumeMl;
     }
 
-    /// <summary>
-    /// CONCEITO POO - POLIMORFISMO:
-    /// Sobrescreve a categoria abstrata para identificar a especialização.
-    /// </summary>
-    public override string Categoria => "Bebida";
+    public override CategoriaItem Categoria => CategoriaItem.Bebida;
 
-    /// <summary>
-    /// CONCEITO POO - POLIMORFISMO:
-    /// Retorna os detalhes específicos da bebida formatados.
-    /// </summary>
     public override string ObterDetalhes() => $"{VolumeMl} ml";
 }

@@ -4,82 +4,127 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delivery - Cardápio</title>
-    <link rel="icon" type="image/png" href="imagens/logo.png">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/png" href="imagens/favicon.png">
+    <script>
+        (function() {
+            try {
+                var salvo = localStorage.getItem('delivery_tema');
+                var prefereEscuro = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                var tema = salvo || (prefereEscuro ? 'escuro' : 'claro');
+                document.documentElement.setAttribute('data-tema', tema);
+            } catch (e) {}
+        })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=6">
 </head>
 
 <body>
 
 <header class="topo">
-    <a href="index.html" class="logo">
-        <img src="imagens/logo.png" alt="Delivery">
-    </a>
+    <div class="logo-wrap">
+        <a href="index.html" class="logo">
+            <img src="imagens/logo-menu.png" alt="Delivery">
+            <span class="logo-texto">Delivery Gourmet</span>
+        </a>
+
+        <div class="logo-popover">
+            <div class="logo-popover-img-wrap">
+                <img src="imagens/logo-menu.png" alt="Logo Delivery Gourmet Ampliada" class="logo-popover-img">
+            </div>
+            <div class="logo-popover-conteudo">
+                <h3>Delivery Gourmet</h3>
+                <p>Sistema Acadêmico de Gestão Gastronômica &amp; Entregas</p>
+            </div>
+        </div>
+    </div>
 
     <nav>
         <a href="index.html">Início</a>
-        <a href="cardapio.html">Cardápio</a>
+        <a href="cardapio.html" class="ativo">Cardápio</a>
         <a href="clientes.html">Clientes</a>
         <a href="entregadores.html">Entregadores</a>
         <a href="pedidos.html">Pedidos</a>
         <a href="relatorios.html">Relatórios</a>
+        <button type="button" id="btnTemaToggle" class="btn-tema" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">
+            <svg class="icone-sol" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="icone-lua" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+        </button>
     </nav>
 </header>
 
 <main class="container">
 
-    <section class="pagina-cabecalho">
-        <h1>Cardápio</h1>
-        <p>Cadastre e consulte os itens disponíveis no cardápio.</p>
+    <section class="pagina-cabecalho animar-fade-in">
+        <h1>Cardápio Gastronômico</h1>
+        <p>Cadastre e consulte os pratos, bebidas e sobremesas com suas respectivas especializações.</p>
     </section>
 
-    <section class="barra-acoes">
+    <section class="barra-acoes animar-fade-in">
 
         <div class="busca">
             <input
                 type="text"
                 id="buscaCardapio"
-                placeholder="Digite o nome do item..."
+                placeholder="Digite o nome do item para filtrar..."
             >
 
-            <button id="btnBuscar">
+            <button id="btnBuscar" class="btn-secundario">
+                <svg class="btn-icone" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                 Buscar
             </button>
         </div>
 
-        <button id="btnListar">
+        <button id="btnListar" class="btn-secundario">
+            <svg class="btn-icone" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
             Listar todos
         </button>
 
-        <button id="btnNovoItem">
+        <button id="btnNovoItem" class="btn-primario">
+            <svg class="btn-icone" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
             Adicionar item
         </button>
 
     </section>
 
-    <section id="formularioItem" class="formulario oculto">
+    <section id="formularioItem" class="formulario oculto animar-fade-in">
 
         <h2>Adicionar item ao cardápio</h2>
 
         <form id="formItem">
 
             <div class="campo">
-                <label for="tipoItem">Tipo</label>
+                <label for="tipoItem">Especialização / Categoria</label>
 
                 <select id="tipoItem" required>
-                    <option value="">Selecione</option>
-                    <option value="prato">Prato</option>
-                    <option value="bebida">Bebida</option>
-                    <option value="sobremesa">Sobremesa</option>
+                    <option value="">Selecione o tipo do item...</option>
+                    <option value="prato">Prato Principal (com tempo de preparo)</option>
+                    <option value="bebida">Bebida (com volume em ml)</option>
+                    <option value="sobremesa">Sobremesa (refrigerada ou ambiente)</option>
                 </select>
             </div>
 
             <div class="campo">
-                <label for="nomeItem">Nome</label>
+                <label for="nomeItem">Nome do Item</label>
 
                 <input
                     type="text"
                     id="nomeItem"
-                    placeholder="Nome do item"
+                    placeholder="Ex.: Risoto de Alho-Poró, Suco Natural..."
                     minlength="2"
                     maxlength="100"
                     required
@@ -87,64 +132,62 @@
             </div>
 
             <div class="campo">
-                <label for="precoItem">Preço</label>
+                <label for="precoItem">Preço Base (R$)</label>
 
                 <input
                     type="number"
                     id="precoItem"
                     min="0.01"
                     step="0.01"
-                    placeholder="0,00"
+                    placeholder="Ex.: 35.90"
                     required
                 >
             </div>
 
             <div id="campoPrato" class="campo oculto">
-                <label for="tempoPreparo">
-                    Tempo de preparo (minutos)
-                </label>
+                <label for="tempoPreparo">Tempo de Preparo da Cozinha (minutos)</label>
 
                 <input
                     type="number"
                     id="tempoPreparo"
                     min="1"
-                    placeholder="Ex.: 30"
+                    max="600"
+                    placeholder="Ex.: 25"
                 >
             </div>
 
             <div id="campoBebida" class="campo oculto">
-                <label for="volumeBebida">
-                    Volume (ml)
-                </label>
+                <label for="volumeBebida">Volume Declarado (ml)</label>
 
                 <input
                     type="number"
                     id="volumeBebida"
                     min="1"
+                    max="10000"
                     placeholder="Ex.: 350"
                 >
             </div>
 
             <div id="campoSobremesa" class="campo oculto">
-                <label for="refrigerada">
-                    É gelada?
-                </label>
+                <label for="refrigerada">Temperatura de Serviço</label>
 
                 <select id="refrigerada">
-                    <option value="false">Não</option>
-                    <option value="true">Sim</option>
+                    <option value="true">Servida Refrigerada / Gelada</option>
+                    <option value="false">Servida em Temperatura Ambiente</option>
                 </select>
             </div>
 
             <div class="botoes-formulario">
 
-                <button type="submit">
+                <button type="submit" class="btn-primario">
+                    <svg class="btn-icone" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
                     Salvar item
                 </button>
 
                 <button
                     type="button"
                     id="btnCancelarItem"
+                    class="btn-secundario"
                 >
                     Cancelar
                 </button>
@@ -155,24 +198,25 @@
 
     </section>
 
-    <section class="tabela-container">
+    <section class="tabela-container animar-fade-in">
 
-        <h2>Itens cadastrados</h2>
+        <h2>Itens cadastrados no cardápio</h2>
 
         <table>
 
             <thead>
                 <tr>
                     <th>Código</th>
-                    <th>Nome</th>
-                    <th>Tipo</th>
-                    <th>Preço</th>
+                    <th>Nome do Item</th>
+                    <th>Categoria</th>
+                    <th>Preço Base</th>
+                    <th>Detalhes / Especialização</th>
                 </tr>
             </thead>
 
             <tbody id="tabelaCardapio">
                 <tr>
-                    <td colspan="4">
+                    <td colspan="5">
                         Nenhum item encontrado.
                     </td>
                 </tr>
@@ -185,7 +229,7 @@
 </main>
 
 <footer>
-    Sistema de Gerenciamento de Delivery
+    <p>Projeto Delivery &bull; Programação Orientada a Objetos</p>
 </footer>
 
 <script src="js/api.js"></script>
