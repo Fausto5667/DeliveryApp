@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Delivery - Pedidos</title>
+
+    <link rel="icon" type="image/png" href="imagens/logo.png">
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+
+    <header class="topo">
+
+        <a href="index.html" class="logo">
+
+            <img
+                src="imagens/logo.png"
+                alt="Delivery"
+            >
+
+        </a>
+
+        <nav>
+
+            <a href="index.html">
+                Início
+            </a>
+
+            <a href="cardapio.html">
+                Cardápio
+            </a>
+
+            <a href="clientes.html">
+                Clientes
+            </a>
+
+            <a href="entregadores.html">
+                Entregadores
+            </a>
+
+            <a href="pedidos.html">
+                Pedidos
+            </a>
+
+            <a href="relatorios.html">
+                Relatórios
+            </a>
+
+        </nav>
+
+    </header>
+
+
+    <main class="container">
+
+
+        <section class="pagina-cabecalho">
+
+            <h1>
+                Pedidos
+            </h1>
+
+            <p>
+                Gerencie os pedidos e acompanhe seus status.
+            </p>
+
+        </section>
+
+
+        <section class="barra-acoes">
+
+
+            <button
+                type="button"
+                id="btnNovoPedido"
+            >
+                Novo pedido
+            </button>
+
+
+            <div class="filtro">
+
+                <label for="filtroStatus">
+                    Status:
+                </label>
+
+                <select id="filtroStatus">
+
+                    <option value="">
+                        Todos
+                    </option>
+
+                    <option value="Recebido">
+                        Recebido
+                    </option>
+
+                    <option value="EmPreparo">
+                        Em Preparo
+                    </option>
+
+                    <option value="Pronto">
+                        Pronto
+                    </option>
+
+                    <option value="EmRota">
+                        Em Rota
+                    </option>
+
+                    <option value="Entregue">
+                        Entregue
+                    </option>
+
+                </select>
+
+            </div>
+
+
+        </section>
+
+
+        <section
+            id="formularioPedido"
+            class="formulario oculto"
+        >
+
+
+            <h2>
+                Novo pedido
+            </h2>
+
+
+            <form id="formPedido">
+
+
+                <div class="campo">
+
+                    <label for="clientePedido">
+                        Cliente
+                    </label>
+
+                    <select
+                        id="clientePedido"
+                        required
+                    >
+
+                        <option value="">
+                            Selecione o cliente
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="campo">
+
+                    <label for="entregadorPedido">
+                        Entregador
+                    </label>
+
+                    <select
+                        id="entregadorPedido"
+                        required
+                    >
+
+                        <option value="">
+                            Selecione o entregador
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="campo">
+
+                    <label for="distanciaPedido">
+                        Distância da entrega (km)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="distanciaPedido"
+                        min="0.1"
+                        max="500"
+                        step="0.1"
+                        placeholder="Ex.: 5.5"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="itens-pedido">
+
+
+                    <h3>
+                        Itens do pedido
+                    </h3>
+
+
+                    <div class="campo">
+
+                        <label for="itemPedido">
+                            Item
+                        </label>
+
+                        <select id="itemPedido">
+
+                            <option value="">
+                                Selecione um item
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="campo">
+
+                        <label for="quantidadeItem">
+                            Quantidade
+                        </label>
+
+                        <input
+                            type="number"
+                            id="quantidadeItem"
+                            min="1"
+                            max="100"
+                            value="1"
+                            required
+                        >
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="btnAdicionarItem"
+                    >
+                        Adicionar item
+                    </button>
+
+
+                    <div
+                        id="listaItensPedido"
+                        class="tabela-container"
+                    >
+
+                        <p>
+                            Nenhum item adicionado.
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="resumo-pedido">
+
+
+                    <p>
+
+                        <span>
+                            Subtotal:
+                        </span>
+
+                        <strong id="subtotalPedido">
+                            R$ 0,00
+                        </strong>
+
+                    </p>
+
+
+                    <p>
+
+                        <span>
+                            Taxa de entrega:
+                        </span>
+
+                        <strong id="taxaEntrega">
+                            R$ 0,00
+                        </strong>
+
+                    </p>
+
+
+                    <p>
+
+                        <span>
+                            Total:
+                        </span>
+
+                        <strong id="totalPedido">
+                            R$ 0,00
+                        </strong>
+
+                    </p>
+
+
+                </div>
+
+
+                <div class="botoes-formulario">
+
+
+                    <button
+                        type="submit"
+                    >
+                        Criar pedido
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="btnCancelarPedido"
+                    >
+                        Cancelar
+                    </button>
+
+
+                </div>
+
+
+            </form>
+
+
+        </section>
+
+
+        <section class="tabela-container">
+
+
+            <h2>
+                Pedidos cadastrados
+            </h2>
+
+
+            <table>
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            ID
+                        </th>
+
+                        <th>
+                            Cliente
+                        </th>
+
+                        <th>
+                            Entregador
+                        </th>
+
+                        <th>
+                            Total
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Ações
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="tabelaPedidos">
+
+                    <tr>
+
+                        <td colspan="6">
+                            Nenhum pedido carregado.
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+
+            </table>
+
+
+        </section>
+
+
+    </main>
+
+
+    <footer>
+
+        <p>
+            Projeto Delivery - Programação Orientada a Objetos
+        </p>
+
+    </footer>
+
+
+    <script src="js/api.js"></script>
+    <script src="js/pedidos.js"></script>
+
+
+</body>
+
+</html>

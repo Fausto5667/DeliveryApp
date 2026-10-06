@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Delivery - Clientes</title>
+
+    <link rel="icon" type="image/png" href="imagens/logo.png">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header class="topo">
+
+        <a href="index.html" class="logo">
+            <img src="imagens/logo.png" alt="Delivery">
+        </a>
+
+        <nav>
+            <a href="index.html">Início</a>
+            <a href="cardapio.html">Cardápio</a>
+            <a href="clientes.html">Clientes</a>
+            <a href="entregadores.html">Entregadores</a>
+            <a href="pedidos.html">Pedidos</a>
+            <a href="relatorios.html">Relatórios</a>
+        </nav>
+
+    </header>
+
+    <main class="container">
+
+        <section class="pagina-cabecalho">
+            <h1>Clientes</h1>
+            <p>Cadastre e consulte os clientes do sistema.</p>
+        </section>
+
+        <section class="barra-acoes">
+
+            <button id="btnNovoCliente">
+                Cadastrar cliente
+            </button>
+
+        </section>
+
+        <section id="formularioCliente" class="formulario oculto">
+
+            <h2>Cadastrar cliente</h2>
+
+            <form id="formCliente">
+
+                <div class="campo">
+
+                    <label for="nomeCliente">
+                        Nome completo
+                    </label>
+
+                    <input
+                        type="text"
+                        id="nomeCliente"
+                        required
+                    >
+
+                </div>
+
+                <div class="campo">
+
+                    <label for="telefoneCliente">
+                        Telefone
+                    </label>
+
+                    <input
+                        type="text"
+                        id="telefoneCliente"
+                        required
+                    >
+
+                </div>
+
+                <div class="campo">
+
+                    <label for="enderecoCliente">
+                        Endereço completo
+                    </label>
+
+                    <input
+                        type="text"
+                        id="enderecoCliente"
+                        required
+                    >
+
+                </div>
+
+                <div class="botoes-formulario">
+
+                    <button type="submit">
+                        Cadastrar
+                    </button>
+
+                    <button
+                        type="button"
+                        id="btnCancelarCliente"
+                    >
+                        Cancelar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+        <section class="tabela-container">
+
+            <h2>Clientes cadastrados</h2>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Telefone</th>
+                        <th>Endereço</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tabelaClientes">
+
+                    <tr>
+                        <td colspan="3">
+                            Nenhum cliente carregado.
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Projeto Delivery - Programação Orientada a Objetos</p>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/clientes.js"></script>
+
+</body>
+</html>
